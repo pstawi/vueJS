@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction : Formulaire d'Inscription Complet</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .form-container {
+            padding: 40px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        label .required {
+            color: #e74c3c;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        input.valide {
+            border-color: #2ecc71;
+        }
+        input.invalide {
+            border-color: #e74c3c;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .success-message {
+            color: #2ecc71;
+            font-size: 13px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .info-text {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 6px;
+        }
+        
+        /* Indicateur de force du mot de passe */
+        .password-strength {
+            margin-top: 10px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            transition: all 0.3s;
+        }
+        .password-strength-bar.faible {
+            width: 33%;
+            background: #e74c3c;
+        }
+        .password-strength-bar.moyen {
+            width: 66%;
+            background: #f39c12;
+        }
+        .password-strength-bar.fort {
+            width: 100%;
+            background: #2ecc71;
+        }
+        .password-strength-text {
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        .faible-text { color: #e74c3c; }
+        .moyen-text { color: #f39c12; }
+        .fort-text { color: #2ecc71; }
+        
+        /* Checkboxes et radios */
+        .checkbox-group,
+        .radio-group {
+            margin-top: 10px;
+        }
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .checkbox-item input[type="checkbox"],
+        .radio-item input[type="radio"] {
+            width: auto;
+            cursor: pointer;
+        }
+        .checkbox-item label,
+        .radio-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        /* Boutons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-reset {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        /* Alerte de succès */
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert-success-icon {
+            font-size: 32px;
+        }
+        
+        /* Récapitulatif */
+        .recap {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .recap h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .recap-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .recap-label {
+            font-weight: bold;
+            min-width: 150px;
+            color: #7f8c8d;
+        }
+        .recap-value {
+            color: #2c3e50;
+        }
+        
+        /* Compteur de caractères */
+        .char-counter {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>📝 Inscription</h1>
+                <p>Créez votre compte</p>
+            </div>
+            
+            <div class="form-container">
+                <!-- Alerte de succès -->
+                <div v-if="formulaireSoumis" class="alert-success">
+                    <div class="alert-success-icon">✅</div>
+                    <div>
+                        <strong>Inscription réussie !</strong>
+                        <p>Votre compte a été créé avec succès.</p>
+                    </div>
+                </div>
+                
+                <!-- Formulaire -->
+                <form v-if="!formulaireSoumis" @submit.prevent="soumettre">
+                    <!-- Nom d'utilisateur -->
+                    <div class="form-group">
+                        <label>
+                            Nom d'utilisateur <span class="required">*</span>
+                        </label>
+                        <input 
+                            v-model.trim="form.username"
+                            type="text" 
+                            placeholder="Minimum 3 caractères"
+                            :class="{ 
+                                'valide': form.username.length >= 3,
+                                'invalide': form.username.length > 0 && form.username.length < 3
+                            }"
+                            @blur="touched.username = true"
+                        >
+                        <div class="char-counter">
+                            {{ form.username.length }} caractères
+                        </div>
+                        <div v-if="touched.username && !usernameValide" class="error-message">
+                            ⚠️ Le nom d'utilisateur doit contenir au moins 3 caractères
+                        </div>
+                        <div v-else-if="usernameValide" class="success-message">
+                            ✓ Nom d'utilisateur valide
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label>
+                            Email <span class="required">*</span>
+                        </label>
+                        <input 
+                            v-model.trim="form.email"
+                            type="email" 
+                            placeholder="votre@email.com"
+                            :class="{ 
+                                'valide': emailValide,
+                                'invalide': form.email.length > 0 && !emailValide
+                            }"
+                            @blur="touched.email = true"
+                        >
+                        <div v-if="touched.email && !emailValide && form.email.length > 0" class="error-message">
+                            ⚠️ Veuillez entrer une adresse email valide
+                        </div>
+                        <div v-else-if="emailValide" class="success-message">
+                            ✓ Email valide
+                        </div>
+                    </div>
+                    
+                    <!-- Mot de passe -->
+                    <div class="form-group">
+                        <label>
+                            Mot de passe <span class="required">*</span>
+                        </label>
+                        <input 
+                            v-model="form.password"
+                            type="password" 
+                            placeholder="Minimum 8 caractères"
+                            :class="{ 
+                                'valide': motDePasseValide,
+                                'invalide': form.password.length > 0 && !motDePasseValide
+                            }"
+                            @blur="touched.password = true"
+                        >
+                        
+                        <!-- Indicateur de force -->
+                        <div v-if="form.password.length > 0" class="password-strength">
+                            <div 
+                                class="password-strength-bar"
+                                :class="forceMdp"
+                            ></div>
+                        </div>
+                        <div v-if="form.password.length > 0" class="password-strength-text" :class="forceMdp + '-text'">
+                            Force : {{ forceMdpTexte }}
+                        </div>
+                        
+                        <div class="info-text">
+                            Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre
+                        </div>
+                        <div v-if="touched.password && !motDePasseValide && form.password.length > 0" class="error-message">
+                            ⚠️ Le mot de passe ne respecte pas les critères
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmation mot de passe -->
+                    <div class="form-group">
+                        <label>
+                            Confirmation du mot de passe <span class="required">*</span>
+                        </label>
+                        <input 
+                            v-model="form.confirmPassword"
+                            type="password" 
+                            placeholder="Répétez votre mot de passe"
+                            :class="{ 
+                                'valide': confirmationValide,
+                                'invalide': form.confirmPassword.length > 0 && !confirmationValide
+                            }"
+                            @blur="touched.confirmPassword = true"
+                        >
+                        <div v-if="touched.confirmPassword && !confirmationValide && form.confirmPassword.length > 0" class="error-message">
+                            ⚠️ Les mots de passe ne correspondent pas
+                        </div>
+                        <div v-else-if="confirmationValide" class="success-message">
+                            ✓ Les mots de passe correspondent
+                        </div>
+                    </div>
+                    
+                    <!-- Âge -->
+                    <div class="form-group">
+                        <label>
+                            Âge <span class="required">*</span>
+                        </label>
+                        <input 
+                            v-model.number="form.age"
+                            type="number" 
+                            min="1"
+                            max="120"
+                            placeholder="Votre âge"
+                            :class="{ 
+                                'valide': ageValide,
+                                'invalide': form.age > 0 && !ageValide
+                            }"
+                            @blur="touched.age = true"
+                        >
+                        <div v-if="touched.age && !ageValide && form.age > 0" class="error-message">
+                            ⚠️ Vous devez avoir au moins 18 ans pour vous inscrire
+                        </div>
+                        <div v-else-if="ageValide" class="success-message">
+                            ✓ Âge valide
+                        </div>
+                    </div>
+                    
+                    <!-- Pays -->
+                    <div class="form-group">
+                        <label>
+                            Pays <span class="required">*</span>
+                        </label>
+                        <select v-model="form.pays" @blur="touched.pays = true">
+                            <option value="">Choisir un pays</option>
+                            <option value="France">France</option>
+                            <option value="Belgique">Belgique</option>
+                            <option value="Suisse">Suisse</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                        <div v-if="touched.pays && !paysValide" class="error-message">
+                            ⚠️ Veuillez sélectionner un pays
+                        </div>
+                    </div>
+                    
+                    <!-- Langues parlées -->
+                    <div class="form-group">
+                        <label>Langues parlées</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input 
+                                    v-model="form.langues"
+                                    type="checkbox" 
+                                    value="Français"
+                                    id="lang-fr"
+                                >
+                                <label for="lang-fr">Français</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input 
+                                    v-model="form.langues"
+                                    type="checkbox" 
+                                    value="Anglais"
+                                    id="lang-en"
+                                >
+                                <label for="lang-en">Anglais</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input 
+                                    v-model="form.langues"
+                                    type="checkbox" 
+                                    value="Espagnol"
+                                    id="lang-es"
+                                >
+                                <label for="lang-es">Espagnol</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input 
+                                    v-model="form.langues"
+                                    type="checkbox" 
+                                    value="Allemand"
+                                    id="lang-de"
+                                >
+                                <label for="lang-de">Allemand</label>
+                            </div>
+                        </div>
+                        <div class="info-text">{{ form.langues.length }} langue(s) sélectionnée(s)</div>
+                    </div>
+                    
+                    <!-- Genre -->
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input 
+                                    v-model="form.genre"
+                                    type="radio" 
+                                    value="Homme"
+                                    id="genre-h"
+                                >
+                                <label for="genre-h">Homme</label>
+                            </div>
+                            <div class="radio-item">
+                                <input 
+                                    v-model="form.genre"
+                                    type="radio" 
+                                    value="Femme"
+                                    id="genre-f"
+                                >
+                                <label for="genre-f">Femme</label>
+                            </div>
+                            <div class="radio-item">
+                                <input 
+                                    v-model="form.genre"
+                                    type="radio" 
+                                    value="Autre"
+                                    id="genre-a"
+                                >
+                                <label for="genre-a">Autre</label>
+                            </div>
+                            <div class="radio-item">
+                                <input 
+                                    v-model="form.genre"
+                                    type="radio" 
+                                    value="Non spécifié"
+                                    id="genre-ns"
+                                >
+                                <label for="genre-ns">Ne souhaite pas répondre</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conditions d'utilisation -->
+                    <div class="form-group">
+                        <div class="checkbox-item">
+                            <input 
+                                v-model="form.conditions"
+                                type="checkbox"
+                                id="conditions"
+                            >
+                            <label for="conditions">
+                                J'accepte les conditions d'utilisation <span class="required">*</span>
+                            </label>
+                        </div>
+                        <div v-if="!form.conditions && touched.conditions" class="error-message">
+                            ⚠️ Vous devez accepter les conditions d'utilisation
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="button-group">
+                        <button 
+                            type="submit" 
+                            class="btn-submit"
+                            :disabled="!formulaireValide"
+                        >
+                            {{ formulaireValide ? '✓ S\'inscrire' : '⚠️ Formulaire incomplet' }}
+                        </button>
+                        <button 
+                            type="button" 
+                            class="btn-reset"
+                            @click="reinitialiser"
+                        >
+                            🔄 Réinitialiser
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Récapitulatif après soumission -->
+                <div v-if="formulaireSoumis" class="recap">
+                    <h3>📋 Récapitulatif de votre inscription</h3>
+                    <div class="recap-item">
+                        <div class="recap-label">Nom d'utilisateur :</div>
+                        <div class="recap-value">{{ form.username }}</div>
+                    </div>
+                    <div class="recap-item">
+                        <div class="recap-label">Email :</div>
+                        <div class="recap-value">{{ form.email }}</div>
+                    </div>
+                    <div class="recap-item">
+                        <div class="recap-label">Âge :</div>
+                        <div class="recap-value">{{ form.age }} ans</div>
+                    </div>
+                    <div class="recap-item">
+                        <div class="recap-label">Pays :</div>
+                        <div class="recap-value">{{ form.pays }}</div>
+                    </div>
+                    <div class="recap-item">
+                        <div class="recap-label">Langues :</div>
+                        <div class="recap-value">{{ form.langues.join(', ') || 'Aucune' }}</div>
+                    </div>
+                    <div class="recap-item">
+                        <div class="recap-label">Genre :</div>
+                        <div class="recap-value">{{ form.genre || 'Non spécifié' }}</div>
+                    </div>
+                    <button @click="nouvelleInscription" style="margin-top: 20px; width: 100%;">
+                        ➕ Nouvelle inscription
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    form: {
+                        username: '',
+                        email: '',
+                        password: '',
+                        confirmPassword: '',
+                        age: null,
+                        pays: '',
+                        langues: [],
+                        genre: '',
+                        conditions: false
+                    },
+                    touched: {
+                        username: false,
+                        email: false,
+                        password: false,
+                        confirmPassword: false,
+                        age: false,
+                        pays: false,
+                        conditions: false
+                    },
+                    formulaireSoumis: false
+                }
+            },
+            
+            computed: {
+                // Validation nom d'utilisateur
+                usernameValide() {
+                    return this.form.username.length >= 3;
+                },
+                
+                // Validation email
+                emailValide() {
+                    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return regex.test(this.form.email);
+                },
+                
+                // Force du mot de passe
+                forceMdp() {
+                    if (this.form.password.length < 8) return 'faible';
+                    const aMajuscule = /[A-Z]/.test(this.form.password);
+                    const aChiffre = /[0-9]/.test(this.form.password);
+                    return (aMajuscule && aChiffre) ? 'fort' : 'moyen';
+                },
+                
+                forceMdpTexte() {
+                    const textes = {
+                        'faible': 'Faible',
+                        'moyen': 'Moyen',
+                        'fort': 'Fort'
+                    };
+                    return textes[this.forceMdp];
+                },
+                
+                // Validation mot de passe
+                motDePasseValide() {
+                    return this.form.password.length >= 8 &&
+                           /[A-Z]/.test(this.form.password) &&
+                           /[0-9]/.test(this.form.password);
+                },
+                
+                // Validation confirmation
+                confirmationValide() {
+                    return this.form.confirmPassword.length > 0 &&
+                           this.form.password === this.form.confirmPassword;
+                },
+                
+                // Validation âge
+                ageValide() {
+                    return this.form.age >= 18;
+                },
+                
+                // Validation pays
+                paysValide() {
+                    return this.form.pays !== '';
+                },
+                
+                // Validation globale du formulaire
+                formulaireValide() {
+                    return this.usernameValide &&
+                           this.emailValide &&
+                           this.motDePasseValide &&
+                           this.confirmationValide &&
+                           this.ageValide &&
+                           this.paysValide &&
+                           this.form.conditions;
+                }
+            },
+            
+            methods: {
+                soumettre() {
+                    // Marquer tous les champs comme touchés
+                    Object.keys(this.touched).forEach(key => {
+                        this.touched[key] = true;
+                    });
+                    
+                    if (this.formulaireValide) {
+                        console.log('Formulaire soumis avec succès:', this.form);
+                        this.formulaireSoumis = true;
+                        
+                        // Scroll vers le haut
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
+                
+                reinitialiser() {
+                    if (confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ?')) {
+                        this.form = {
+                            username: '',
+                            email: '',
+                            password: '',
+                            confirmPassword: '',
+                            age: null,
+                            pays: '',
+                            langues: [],
+                            genre: '',
+                            conditions: false
+                        };
+                        this.touched = {
+                            username: false,
+                            email: false,
+                            password: false,
+                            confirmPassword: false,
+                            age: false,
+                            pays: false,
+                            conditions: false
+                        };
+                    }
+                },
+                
+                nouvelleInscription() {
+                    this.formulaireSoumis = false;
+                    this.reinitialiser();
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 POINTS CLÉS DE LA CORRECTION :
+    
+    1. V-MODEL :
+       - v-model.trim pour username et email (supprime espaces)
+       - v-model.number pour age (convertit en nombre)
+       - v-model simple pour les autres champs
+       - v-model sur checkbox (booléen et array)
+       - v-model sur radio
+    
+    2. VALIDATION :
+       - Computed properties pour chaque validation
+       - Regex pour email : /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+       - Regex pour majuscule : /[A-Z]/
+       - Regex pour chiffre : /[0-9]/
+       - Validation globale combinée
+    
+    3. CLASSES DYNAMIQUES :
+       - :class="{ 'valide': condition, 'invalide': !condition }"
+       - Classes conditionnelles pour les états
+    
+    4. DIRECTIVES CONDITIONNELLES :
+       - v-if pour afficher/masquer messages
+       - v-else-if pour conditions multiples
+       - Affichage conditionnel du formulaire/récapitulatif
+    
+    5. ÉVÉNEMENTS :
+       - @submit.prevent="soumettre" (empêche rechargement)
+       - @blur pour marquer champs comme touchés
+       - @click pour boutons
+    
+    6. INDICATEUR DE FORCE :
+       - Computed forceMdp retourne 'faible', 'moyen', 'fort'
+       - Classes dynamiques sur barre de progression
+       - Texte et couleur adaptés
+    
+    7. GESTION D'ÉTAT :
+       - Object touched pour savoir quels champs ont été visités
+       - formulaireSoumis pour basculer entre formulaire et récapitulatif
+       - Validation déclenchée seulement après blur (UX)
+    
+    8. BONNES PRATIQUES :
+       - Validation progressive (pas d'erreurs avant interaction)
+       - Feedback visuel immédiat
+       - Messages d'erreur clairs
+       - Bouton désactivé si formulaire invalide
+       - Confirmation avant réinitialisation
+    -->
+</body>
+</html>

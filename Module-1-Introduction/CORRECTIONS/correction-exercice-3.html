@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction Exercice 3 : Générateur de Citations</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            padding: 50px 40px;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animation de fond selon l'index */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #e74c3c, #f39c12, #2ecc71);
+            background-size: 400% 100%;
+        }
+        
+        .citation-box {
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .guillemet-ouvrant {
+            font-size: 60px;
+            color: #3498db;
+            line-height: 0.5;
+            margin-bottom: 20px;
+            font-family: Georgia, serif;
+        }
+        
+        .citation-texte {
+            font-size: 24px;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        
+        .citation-auteur {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .citation-auteur::before {
+            content: '— ';
+        }
+        
+        .compteur {
+            text-align: center;
+            margin: 30px 0 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+            font-family: Arial, sans-serif;
+        }
+        
+        .barre-progression-container {
+            width: 100%;
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .barre-progression {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .pourcentage {
+            text-align: center;
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+        
+        .controles {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: Arial, sans-serif;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-precedent {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-precedent:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-aleatoire {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-aleatoire:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-suivant {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-suivant:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-copier {
+            background-color: #2ecc71;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-copier:hover {
+            background-color: #27ae60;
+        }
+        
+        .message-copie {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Animation d'entrée */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .citation-box {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="citation-box">
+                <!-- Guillemet décoratif -->
+                <div class="guillemet-ouvrant">"</div>
+                
+                <!-- Texte de la citation -->
+                <div class="citation-texte">
+                    {{ citations[indexActuel].texte }}
+                </div>
+                
+                <!-- Auteur -->
+                <div class="citation-auteur">
+                    {{ citations[indexActuel].auteur }}
+                </div>
+            </div>
+            
+            <!-- Compteur -->
+            <div class="compteur">
+                Citation {{ indexActuel + 1 }} sur {{ citations.length }}
+            </div>
+            
+            <!-- Barre de progression -->
+            <div class="barre-progression-container">
+                <div 
+                    class="barre-progression"
+                    :style="{ 
+                        width: ((indexActuel + 1) / citations.length * 100) + '%' 
+                    }"
+                ></div>
+            </div>
+            <div class="pourcentage">
+                {{ Math.round((indexActuel + 1) / citations.length * 100) }}%
+            </div>
+            
+            <!-- Boutons de contrôle -->
+            <div class="controles">
+                <button 
+                    @click="citationPrecedente" 
+                    class="btn-precedent"
+                    title="Citation précédente"
+                >
+                    ← Précédent
+                </button>
+                
+                <button 
+                    @click="citationAleatoire" 
+                    class="btn-aleatoire"
+                    title="Citation aléatoire"
+                >
+                    🎲 Aléatoire
+                </button>
+                
+                <button 
+                    @click="citationSuivante" 
+                    class="btn-suivant"
+                    title="Citation suivante"
+                >
+                    Suivant →
+                </button>
+            </div>
+            
+            <!-- Bouton Copier -->
+            <button 
+                @click="copierCitation" 
+                class="btn-copier"
+                title="Copier la citation dans le presse-papier"
+            >
+                📋 Copier la citation
+            </button>
+            
+            <!-- Message de confirmation -->
+            <div v-if="afficherMessageCopie" class="message-copie">
+                ✓ Citation copiée dans le presse-papier !
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    citations: [
+                        { 
+                            texte: "Le code est comme l'humour. Quand vous devez l'expliquer, c'est mauvais.", 
+                            auteur: "Cory House" 
+                        },
+                        { 
+                            texte: "Tout le monde devrait apprendre à programmer, car cela vous apprend à penser.", 
+                            auteur: "Steve Jobs" 
+                        },
+                        { 
+                            texte: "La perfection est atteinte non quand il ne reste rien à ajouter, mais quand il ne reste rien à enlever.", 
+                            auteur: "Antoine de Saint-Exupéry" 
+                        },
+                        { 
+                            texte: "La simplicité est l'ultime sophistication.", 
+                            auteur: "Léonard de Vinci" 
+                        },
+                        { 
+                            texte: "Apprendre à écrire des programmes étend votre esprit et vous aide à mieux penser.", 
+                            auteur: "Bill Gates" 
+                        },
+                        { 
+                            texte: "Un bon programmeur est quelqu'un qui regarde des deux côtés avant de traverser une rue à sens unique.", 
+                            auteur: "Doug Linder" 
+                        },
+                        { 
+                            texte: "D'abord, résolvez le problème. Ensuite, écrivez le code.", 
+                            auteur: "John Johnson" 
+                        },
+                        { 
+                            texte: "L'expérience est le nom que chacun donne à ses erreurs.", 
+                            auteur: "Oscar Wilde" 
+                        }
+                    ],
+                    indexActuel: 0,
+                    afficherMessageCopie: false
+                }
+            },
+            methods: {
+                // Citation suivante (avec boucle)
+                citationSuivante() {
+                    this.indexActuel = (this.indexActuel + 1) % this.citations.length;
+                },
+                
+                // Citation précédente (avec boucle)
+                citationPrecedente() {
+                    this.indexActuel = (this.indexActuel - 1 + this.citations.length) % this.citations.length;
+                },
+                
+                // Citation aléatoire
+                citationAleatoire() {
+                    let nouvelIndex;
+                    do {
+                        nouvelIndex = Math.floor(Math.random() * this.citations.length);
+                    } while (nouvelIndex === this.indexActuel && this.citations.length > 1);
+                    
+                    this.indexActuel = nouvelIndex;
+                },
+                
+                // Copier la citation dans le presse-papier
+                async copierCitation() {
+                    const citation = this.citations[this.indexActuel];
+                    const texteACopier = `"${citation.texte}" - ${citation.auteur}`;
+                    
+                    try {
+                        await navigator.clipboard.writeText(texteACopier);
+                        
+                        // Afficher le message de confirmation
+                        this.afficherMessageCopie = true;
+                        
+                        // Masquer le message après 2 secondes
+                        setTimeout(() => {
+                            this.afficherMessageCopie = false;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Erreur lors de la copie:', err);
+                        alert('Impossible de copier la citation');
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 EXPLICATIONS DE LA CORRECTION :
+
+    1. ACCÈS AUX DONNÉES DU TABLEAU :
+       - citations[indexActuel]
+         → Accède à l'objet citation à l'index actuel
+       
+       - citations[indexActuel].texte
+         → Accède à la propriété texte de l'objet
+       
+       - citations.length
+         → Nombre total de citations
+
+    2. COMPTEUR ET PROGRESSION :
+       - indexActuel + 1
+         → +1 car les tableaux commencent à 0
+       
+       - ((indexActuel + 1) / citations.length * 100) + '%'
+         → Calcul du pourcentage de progression
+       
+       - Math.round(...)
+         → Arrondit le pourcentage
+
+    3. NAVIGATION :
+       - Citation suivante avec boucle :
+         (indexActuel + 1) % citations.length
+         → % (modulo) fait revenir à 0 quand on dépasse la fin
+       
+       - Citation précédente :
+         (indexActuel - 1 + citations.length) % citations.length
+         → +citations.length évite les nombres négatifs
+
+    4. CITATION ALÉATOIRE :
+       - Math.random() génère un nombre entre 0 et 1
+       - Math.floor() arrondit à l'entier inférieur
+       - do...while évite de retomber sur la même citation
+
+    5. MÉTHODES :
+       - @click="citationSuivante"
+         → Appelle la méthode citationSuivante
+       
+       - Toutes les méthodes sont définies dans l'objet methods
+       - On accède aux données avec this.indexActuel
+
+    6. COPIE DANS LE PRESSE-PAPIER :
+       - navigator.clipboard.writeText()
+         → API moderne du navigateur
+       
+       - async/await pour gérer l'asynchrone
+       - setTimeout pour masquer le message après 2s
+
+    7. DIRECTIVES UTILISÉES :
+       - {{ }} : Interpolation
+       - :style : Binding de style
+       - @click : Gestion d'événement
+       - v-if : Affichage conditionnel
+
+    8. BONNES PRATIQUES :
+       - Animation CSS pour une meilleure UX
+       - Feedback utilisateur (message de copie)
+       - Accessibilité (attributs title)
+       - Code modulaire avec méthodes réutilisables
+       - Gestion des erreurs (try/catch)
+    -->
+</body>
+</html>

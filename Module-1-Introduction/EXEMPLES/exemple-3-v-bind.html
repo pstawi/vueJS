@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemple 3 : v-bind (Binding d'attributs)</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #ecf0f1;
+        }
+        #app {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        .exemple {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        /* Classes dynamiques */
+        .actif {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .inactif {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .encadre {
+            border: 3px solid #3498db;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        /* Boutons */
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        /* Images */
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .product-image {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 100%;
+        }
+        
+        /* Liens */
+        .lien-dynamique {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .lien-dynamique:hover {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🔗 v-bind : Liaison d'Attributs Dynamiques</h1>
+
+        <!-- 1. Binding d'images -->
+        <div class="exemple">
+            <h2>1. Images Dynamiques</h2>
+            <div class="image-container">
+                <img 
+                    :src="produit.image" 
+                    :alt="produit.nom"
+                    :width="produit.largeur"
+                    class="product-image"
+                >
+                <p><strong>{{ produit.nom }}</strong> - {{ produit.prix }} €</p>
+            </div>
+        </div>
+
+        <!-- 2. Binding de classes CSS -->
+        <div class="exemple">
+            <h2>2. Classes CSS Dynamiques</h2>
+            
+            <!-- Syntaxe objet -->
+            <div :class="{ 'actif': estActif, 'encadre': true }">
+                Statut : {{ estActif ? 'ACTIF' : 'INACTIF' }}
+            </div>
+            
+            <button @click="basculerActif" class="btn-primary">
+                Basculer le statut
+            </button>
+
+            <!-- Syntaxe avec variable -->
+            <div :class="classeStatut" style="margin-top: 15px;">
+                Classe appliquée : {{ classeStatut }}
+            </div>
+            
+            <button @click="changerClasse" class="btn-success">
+                Changer la classe
+            </button>
+        </div>
+
+        <!-- 3. Binding de styles inline -->
+        <div class="exemple">
+            <h2>3. Styles Inline Dynamiques</h2>
+            
+            <div :style="{ 
+                color: couleurTexte, 
+                fontSize: tailleFonte + 'px',
+                backgroundColor: couleurFond,
+                padding: '15px',
+                borderRadius: '5px'
+            }">
+                Texte avec style dynamique
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <label>Couleur du texte : 
+                    <input type="color" v-model="couleurTexte">
+                </label>
+                <br><br>
+                <label>Couleur de fond : 
+                    <input type="color" v-model="couleurFond">
+                </label>
+                <br><br>
+                <label>Taille de la police : {{ tailleFonte }}px
+                    <input type="range" v-model="tailleFonte" min="12" max="48">
+                </label>
+            </div>
+        </div>
+
+        <!-- 4. Binding d'URL et attributs href -->
+        <div class="exemple">
+            <h2>4. Liens Dynamiques</h2>
+            <p>
+                <a :href="lien.url" :title="lien.titre" class="lien-dynamique" target="_blank">
+                    {{ lien.texte }}
+                </a>
+            </p>
+            <p>URL : <code>{{ lien.url }}</code></p>
+        </div>
+
+        <!-- 5. Attributs booléens (disabled, checked, etc.) -->
+        <div class="exemple">
+            <h2>5. Attributs Booléens</h2>
+            
+            <button :disabled="estEnChargement" class="btn-primary">
+                {{ estEnChargement ? 'Chargement...' : 'Envoyer' }}
+            </button>
+            
+            <button @click="basculerChargement" class="btn-success">
+                {{ estEnChargement ? 'Arrêter' : 'Démarrer' }} le chargement
+            </button>
+
+            <div style="margin-top: 15px;">
+                <label>
+                    <input type="checkbox" :checked="accepteConditions" @change="accepteConditions = !accepteConditions">
+                    J'accepte les conditions ({{ accepteConditions ? 'Oui' : 'Non' }})
+                </label>
+            </div>
+        </div>
+
+        <!-- 6. Binding d'attributs multiples -->
+        <div class="exemple">
+            <h2>6. Attributs Multiples</h2>
+            <input 
+                type="text"
+                :placeholder="champTexte.placeholder"
+                :maxlength="champTexte.maxlength"
+                :value="champTexte.valeur"
+                :class="{ 'encadre': champTexte.valeur.length > 0 }"
+                @input="champTexte.valeur = $event.target.value"
+                style="width: 100%; padding: 10px; border: 2px solid #3498db; border-radius: 5px;"
+            >
+            <p>Caractères restants : {{ champTexte.maxlength - champTexte.valeur.length }}</p>
+        </div>
+
+        <!-- 7. Binding avec attributs data-* -->
+        <div class="exemple">
+            <h2>7. Attributs Personnalisés (data-*)</h2>
+            <div 
+                :data-user-id="utilisateur.id"
+                :data-user-role="utilisateur.role"
+                style="padding: 15px; background-color: #34495e; color: white; border-radius: 5px;"
+            >
+                <p><strong>Utilisateur :</strong> {{ utilisateur.nom }}</p>
+                <p><strong>Rôle :</strong> {{ utilisateur.role }}</p>
+                <p><strong>ID :</strong> {{ utilisateur.id }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    // Produit avec image
+                    produit: {
+                        nom: 'Ordinateur Portable',
+                        prix: 999,
+                        image: `./tableauFRONT.png`,
+                        largeur: 400
+                    },
+                    
+                    // Classes dynamiques
+                    estActif: true,
+                    classeStatut: 'actif',
+                    
+                    // Styles dynamiques
+                    couleurTexte: '#ffffff',
+                    couleurFond: '#e74c3c',
+                    tailleFonte: 18,
+                    
+                    // Liens
+                    lien: {
+                        url: 'https://vuejs.org',
+                        texte: 'Documentation Vue.js',
+                        titre: 'Aller vers la documentation officielle'
+                    },
+                    
+                    // Attributs booléens
+                    estEnChargement: false,
+                    accepteConditions: false,
+                    
+                    // Champ de texte
+                    champTexte: {
+                        placeholder: 'Entrez votre texte ici (max 50 caractères)',
+                        maxlength: 50,
+                        valeur: ''
+                    },
+                    
+                    // Utilisateur
+                    utilisateur: {
+                        id: 12345,
+                        nom: 'Marie Dubois',
+                        role: 'Admin'
+                    }
+                }
+            },
+            methods: {
+                basculerActif() {
+                    this.estActif = !this.estActif;
+                    this.classeStatut = this.estActif ? 'actif' : 'inactif';
+                },
+                changerClasse() {
+                    this.classeStatut = this.classeStatut === 'actif' ? 'inactif' : 'actif';
+                    this.estActif = this.classeStatut === 'actif';
+                },
+                basculerChargement() {
+                    this.estEnChargement = !this.estEnChargement;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

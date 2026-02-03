@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemple : Composition API - Dashboard Utilisateur</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        #app {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .user-list {
+            display: grid;
+            gap: 15px;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .user-card:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .user-email {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #ffe5e5;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>👥 Dashboard Utilisateurs</h1>
+            <p>Composition API avec intégration d'API REST</p>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Statistiques</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ users.length }}</div>
+                    <div class="stat-label">Utilisateurs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ totalPosts }}</div>
+                    <div class="stat-label">Posts totaux</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ averagePostsPerUser }}</div>
+                    <div class="stat-label">Posts / Utilisateur</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>👤 Liste des Utilisateurs</h2>
+            
+            <div class="controls">
+                <button @click="fetchUsers">🔄 Recharger</button>
+                <button @click="addRandomUser">➕ Ajouter utilisateur</button>
+            </div>
+            
+            <!-- État de chargement -->
+            <div v-if="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Chargement des utilisateurs...</p>
+            </div>
+            
+            <!-- Erreur -->
+            <div v-else-if="error" class="error">
+                ⚠️ Erreur : {{ error }}
+            </div>
+            
+            <!-- Liste des utilisateurs -->
+            <div v-else class="user-list">
+                <div v-for="user in users" :key="user.id" class="user-card">
+                    <div class="user-avatar">
+                        {{ user.name.charAt(0) }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ user.name }}</div>
+                        <div class="user-email">{{ user.email }}</div>
+                    </div>
+                    <button @click="viewUserDetails(user)">
+                        Voir détails
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        
+        createApp({
+            setup() {
+                // ==========================================
+                // STATE avec ref() et reactive()
+                // ==========================================
+                
+                // Données réactives avec ref()
+                const users = ref([]);
+                const loading = ref(false);
+                const error = ref(null);
+                const totalPosts = ref(0);
+                
+                // ==========================================
+                // COMPUTED PROPERTIES
+                // ==========================================
+                
+                // Calcule la moyenne de posts par utilisateur
+                const averagePostsPerUser = computed(() => {
+                    if (users.value.length === 0) return 0;
+                    return Math.round(totalPosts.value / users.value.length);
+                });
+                
+                // ==========================================
+                // METHODS (fonctions dans setup)
+                // ==========================================
+                
+                // Récupérer les utilisateurs depuis l'API
+                const fetchUsers = async () => {
+                    loading.value = true;
+                    error.value = null;
+                    
+                    try {
+                        // API publique JSONPlaceholder
+                        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+                        
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau');
+                        }
+                        
+                        users.value = await response.json();
+                        
+                        // Récupérer le nombre de posts
+                        await fetchTotalPosts();
+                        
+                    } catch (err) {
+                        error.value = err.message;
+                        console.error('Erreur:', err);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+                
+                // Récupérer le nombre total de posts
+                const fetchTotalPosts = async () => {
+                    try {
+                        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+                        const posts = await response.json();
+                        totalPosts.value = posts.length;
+                    } catch (err) {
+                        console.error('Erreur posts:', err);
+                    }
+                };
+                
+                // Ajouter un utilisateur aléatoire
+                const addRandomUser = () => {
+                    const randomUser = {
+                        id: Date.now(),
+                        name: `Utilisateur ${users.value.length + 1}`,
+                        email: `user${users.value.length + 1}@example.com`
+                    };
+                    users.value.push(randomUser);
+                };
+                
+                // Voir les détails d'un utilisateur
+                const viewUserDetails = (user) => {
+                    alert(`Détails de ${user.name}\n\nEmail: ${user.email}\nID: ${user.id}`);
+                };
+                
+                // ==========================================
+                // LIFECYCLE HOOKS
+                // ==========================================
+                
+                // Exécuté au montage du composant
+                onMounted(() => {
+                    console.log('Composant monté - Chargement des données...');
+                    fetchUsers();
+                });
+                
+                // ==========================================
+                // WATCHERS
+                // ==========================================
+                
+                // Observer les changements du nombre d'utilisateurs
+                watch(
+                    () => users.value.length,
+                    (newLength, oldLength) => {
+                        console.log(`Nombre d'utilisateurs: ${oldLength} → ${newLength}`);
+                    }
+                );
+                
+                // Observer les erreurs
+                watch(error, (newError) => {
+                    if (newError) {
+                        console.error('Une erreur est survenue:', newError);
+                    }
+                });
+                
+                // ==========================================
+                // RETURN (exposer au template)
+                // ==========================================
+                
+                // Tout ce qui est retourné est accessible dans le template
+                return {
+                    // State
+                    users,
+                    loading,
+                    error,
+                    totalPosts,
+                    
+                    // Computed
+                    averagePostsPerUser,
+                    
+                    // Methods
+                    fetchUsers,
+                    addRandomUser,
+                    viewUserDetails
+                };
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 EXPLICATIONS COMPOSITION API :
+    
+    1. SETUP() :
+       - Point d'entrée de la Composition API
+       - S'exécute avant created()
+       - Retourne ce qui doit être exposé au template
+    
+    2. REF() :
+       - Crée une référence réactive pour valeurs primitives
+       - Accès : .value dans le script
+       - Pas de .value dans le template
+       - Ex: const count = ref(0) → count.value++
+    
+    3. COMPUTED() :
+       - Propriété calculée réactive
+       - Prend une fonction en paramètre
+       - Retourne une ref
+       - Ex: const double = computed(() => count.value * 2)
+    
+    4. LIFECYCLE HOOKS :
+       - onMounted() : Après montage du composant
+       - onUpdated() : Après mise à jour
+       - onUnmounted() : Avant démontage
+       - Import depuis 'vue'
+    
+    5. WATCH() :
+       - Observer les changements de données
+       - Premier paramètre : source à observer
+       - Deuxième paramètre : callback (nouveau, ancien)
+       - Peut observer plusieurs sources
+    
+    6. AVANTAGES :
+       ✅ Code organisé par fonctionnalité (pas par type)
+       ✅ Réutilisable (composables)
+       ✅ Meilleur support TypeScript
+       ✅ Pas de confusion avec 'this'
+       ✅ Plus flexible
+    
+    7. DIFFÉRENCE AVEC OPTIONS API :
+       Options API           →  Composition API
+       data()               →  ref() / reactive()
+       computed: {}         →  computed()
+       methods: {}          →  functions
+       mounted()            →  onMounted()
+       watch: {}            →  watch()
+    -->
+</body>
+</html>

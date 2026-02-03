@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction Exercice 1 : Carte de Visite</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .carte-visite {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .entete {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px 80px;
+            text-align: center;
+            position: relative;
+        }
+        .photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            object-fit: cover;
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .contenu {
+            padding: 80px 30px 30px;
+            text-align: center;
+        }
+        .nom {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .poste {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .badge-disponibilite {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+        }
+        .section {
+            margin: 25px 0;
+            text-align: left;
+        }
+        .section-titre {
+            font-size: 14px;
+            font-weight: bold;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .info-ligne {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: #2c3e50;
+        }
+        .icone {
+            width: 20px;
+            margin-right: 10px;
+            color: #667eea;
+        }
+        .competences {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .competence-badge {
+            background-color: #ecf0f1;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        .competences-info {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+        .reseaux-sociaux {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+        .reseau-lien {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        .reseau-lien:hover {
+            color: #764ba2;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="carte-visite">
+            <!-- En-tête avec fond coloré -->
+            <div class="entete">
+                <!-- Photo de profil avec v-bind -->
+                <img 
+                    :src="personne.photo" 
+                    :alt="`Photo de ${personne.prenom} ${personne.nom}`"
+                    class="photo"
+                >
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="contenu">
+                <!-- Nom complet en majuscules -->
+                <h1 class="nom">{{ `${personne.prenom} ${personne.nom}`.toUpperCase() }}</h1>
+                
+                <!-- Poste -->
+                <p class="poste">{{ personne.poste }}</p>
+
+                <!-- Badge de disponibilité dynamique -->
+                <span 
+                    class="badge-disponibilite"
+                    :style="{ 
+                        backgroundColor: estDisponible ? '#2ecc71' : '#e74c3c' 
+                    }"
+                >
+                    {{ estDisponible ? '✓ Disponible' : '✗ Non disponible' }}
+                </span>
+
+                <!-- Section Contact -->
+                <div class="section">
+                    <div class="section-titre">📞 Contact</div>
+                    <div class="info-ligne">
+                        <span class="icone">✉️</span>
+                        <span>{{ personne.email }}</span>
+                    </div>
+                    <div class="info-ligne">
+                        <span class="icone">📱</span>
+                        <span>{{ personne.telephone }}</span>
+                    </div>
+                    <div class="info-ligne">
+                        <span class="icone">📍</span>
+                        <span>{{ personne.ville }}</span>
+                    </div>
+                </div>
+
+                <!-- Section Compétences -->
+                <div class="section">
+                    <div class="section-titre">💼 Compétences</div>
+                    <div class="competences">
+                        <!-- Affichage de toutes les compétences -->
+                            {{ personne.competences.join(', ') }}
+                        </span>
+                    </div>
+                    <!-- Nombre de compétences -->
+                    <p class="competences-info">
+                        {{ personne.competences.length }} compétence{{ personne.competences.length > 1 ? 's' : '' }} au total
+                    </p>
+                </div>
+
+                <!-- Réseaux sociaux -->
+                <div class="reseaux-sociaux">
+                    <a 
+                        :href="reseauxSociaux.linkedin" 
+                        :title="`Profil LinkedIn de ${personne.prenom}`"
+                        class="reseau-lien"
+                        target="_blank"
+                    >
+                        💼
+                    </a>
+                    <a 
+                        :href="reseauxSociaux.github" 
+                        :title="`Profil GitHub de ${personne.prenom}`"
+                        class="reseau-lien"
+                        target="_blank"
+                    >
+                        👨‍💻
+                    </a>
+                    <a 
+                        :href="reseauxSociaux.twitter" 
+                        :title="`Profil Twitter de ${personne.prenom}`"
+                        class="reseau-lien"
+                        target="_blank"
+                    >
+                        🐦
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    personne: {
+                        nom: 'Martin',
+                        prenom: 'Sophie',
+                        poste: 'Développeuse Full Stack',
+                        email: 'sophie.martin@example.com',
+                        telephone: '06 12 34 56 78',
+                        photo: 'https://i.pravatar.cc/150?img=47',
+                        ville: 'Lyon, France',
+                        competences: ['Vue.js', 'React', 'Node.js', 'MongoDB', 'TypeScript', 'Docker']
+                    },
+                    reseauxSociaux: {
+                        linkedin: 'https://linkedin.com/in/sophie-martin',
+                        github: 'https://github.com/sophie-martin',
+                        twitter: 'https://twitter.com/sophie_dev'
+                    },
+                    estDisponible: true
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!-- 
+    📝 EXPLICATIONS DE LA CORRECTION :
+
+    1. INTERPOLATION :
+       - {{ `${personne.prenom} ${personne.nom}`.toUpperCase() }}
+         → Combine prénom et nom, puis convertit en majuscules
+       
+       - {{ estDisponible ? '✓ Disponible' : '✗ Non disponible' }}
+         → Opérateur ternaire pour afficher le bon texte
+       
+       - {{ personne.competences.length }}
+         → Accède à la propriété length du tableau
+
+    2. V-BIND :
+       - :src="personne.photo"
+         → Lie l'attribut src à la propriété photo
+       
+       - :alt="`Photo de ${personne.prenom} ${personne.nom}`"
+         → Template literal dans un attribut
+       
+       - :style="{ backgroundColor: estDisponible ? '#2ecc71' : '#e74c3c' }"
+         → Style inline dynamique avec objet JavaScript
+       
+       - :href="reseauxSociaux.linkedin"
+         → Lie l'URL du lien
+       
+       - :title="`Profil LinkedIn de ${personne.prenom}`"
+         → Info-bulle dynamique
+
+    3. V-FOR (aperçu) :
+       - v-for="competence in personne.competences"
+         → Boucle sur le tableau (on verra ça en détail au Module 3)
+
+    4. BONNES PRATIQUES :
+       - Code bien organisé et commenté
+       - Noms de variables descriptifs en français
+       - CSS modulaire avec des classes réutilisables
+       - Accessibilité (alt sur les images, title sur les liens)
+       - Responsive design
+    -->
+</body>
+</html>

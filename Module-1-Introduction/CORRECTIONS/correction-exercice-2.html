@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction Exercice 2 : Calculatrice Simple</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .calculatrice {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .icone-titre {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .saisie-section {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .input-groupe {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        .resultats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .resultat-ligne {
+            background-color: #f8f9fa;
+            padding: 18px 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+        .resultat-ligne:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .resultat-ligne.addition {
+            border-left-color: #3498db;
+        }
+        .resultat-ligne.soustraction {
+            border-left-color: #e74c3c;
+        }
+        .resultat-ligne.multiplication {
+            border-left-color: #9b59b6;
+        }
+        .resultat-ligne.division {
+            border-left-color: #f39c12;
+        }
+        .operation-icone {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .operation-texte {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .resultat-valeur {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .resultat-positif {
+            color: #27ae60;
+        }
+        .resultat-negatif {
+            color: #e74c3c;
+        }
+        .resultat-neutre {
+            color: #2c3e50;
+        }
+        .erreur {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .egalite-badge {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="calculatrice">
+            <h1>
+                <span class="icone-titre">🔢</span>
+                Calculatrice Simple
+            </h1>
+
+            <!-- Section de saisie -->
+            <div class="saisie-section">
+                <div class="input-groupe">
+                    <label for="nombre1">Premier nombre :</label>
+                    <input 
+                        type="number" 
+                        id="nombre1"
+                        v-model.number="nombre1"
+                        placeholder="Entrez le premier nombre"
+                    >
+                </div>
+
+                <div class="input-groupe">
+                    <label for="nombre2">Deuxième nombre :</label>
+                    <input 
+                        type="number" 
+                        id="nombre2"
+                        v-model.number="nombre2"
+                        placeholder="Entrez le deuxième nombre"
+                    >
+                </div>
+            </div>
+
+            <!-- Résultats -->
+            <div class="resultats">
+                <!-- Addition -->
+                <div class="resultat-ligne addition">
+                    <div class="operation-texte">
+                        <span class="operation-icone">➕</span>
+                        Addition
+                    </div>
+                    <div 
+                        class="resultat-valeur"
+                        :class="{
+                            'resultat-positif': (nombre1 + nombre2) > 0,
+                            'resultat-negatif': (nombre1 + nombre2) < 0,
+                            'resultat-neutre': (nombre1 + nombre2) === 0
+                        }"
+                    >
+                        {{ nombre1 }} + {{ nombre2 }} = {{ nombre1 + nombre2 }}
+                    </div>
+                </div>
+
+                <!-- Soustraction -->
+                <div class="resultat-ligne soustraction">
+                    <div class="operation-texte">
+                        <span class="operation-icone">➖</span>
+                        Soustraction
+                    </div>
+                    <div 
+                        class="resultat-valeur"
+                        :class="{
+                            'resultat-positif': (nombre1 - nombre2) > 0,
+                            'resultat-negatif': (nombre1 - nombre2) < 0,
+                            'resultat-neutre': (nombre1 - nombre2) === 0
+                        }"
+                    >
+                        {{ nombre1 }} - {{ nombre2 }} = {{ nombre1 - nombre2 }}
+                    </div>
+                </div>
+
+                <!-- Multiplication -->
+                <div class="resultat-ligne multiplication">
+                    <div class="operation-texte">
+                        <span class="operation-icone">✖️</span>
+                        Multiplication
+                    </div>
+                    <div 
+                        class="resultat-valeur"
+                        :class="{
+                            'resultat-positif': (nombre1 * nombre2) > 0,
+                            'resultat-negatif': (nombre1 * nombre2) < 0,
+                            'resultat-neutre': (nombre1 * nombre2) === 0
+                        }"
+                    >
+                        {{ nombre1 }} × {{ nombre2 }} = {{ nombre1 * nombre2 }}
+                    </div>
+                </div>
+
+                <!-- Division -->
+                <div class="resultat-ligne division">
+                    <div class="operation-texte">
+                        <span class="operation-icone">➗</span>
+                        Division
+                    </div>
+                    <div class="resultat-valeur">
+                        {{ nombre1 }} ÷ {{ nombre2 }} = 
+                        <span v-if="nombre2 !== 0" 
+                              :class="{
+                                  'resultat-positif': (nombre1 / nombre2) > 0,
+                                  'resultat-negatif': (nombre1 / nombre2) < 0,
+                                  'resultat-neutre': (nombre1 / nombre2) === 0
+                              }">
+                            {{ (nombre1 / nombre2).toFixed(2) }}
+                        </span>
+                        <span v-else class="erreur">
+                            ⚠️ Division par zéro impossible
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message si les nombres sont égaux -->
+            <div v-if="nombre1 === nombre2 && nombre1 !== 0" class="info-box">
+                ℹ️ Les deux nombres sont égaux !
+                <span class="egalite-badge">{{ nombre1 }} = {{ nombre2 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    nombre1: 10,
+                    nombre2: 5
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 EXPLICATIONS DE LA CORRECTION :
+
+    1. V-MODEL :
+       - v-model.number="nombre1"
+         → Lie bidirectionnellement l'input à la donnée
+         → .number convertit automatiquement en nombre (pas en string)
+       
+    2. CALCULS EN TEMPS RÉEL :
+       - {{ nombre1 + nombre2 }}
+         → L'interpolation recalcule automatiquement quand les données changent
+       
+       - {{ (nombre1 / nombre2).toFixed(2) }}
+         → Arrondit à 2 décimales pour la division
+
+    3. CONDITIONS :
+       - v-if="nombre2 !== 0"
+         → Affiche le résultat seulement si nombre2 n'est pas 0
+       
+       - v-else
+         → Alternative si la condition v-if est fausse
+       
+       - v-if="nombre1 === nombre2 && nombre1 !== 0"
+         → Plusieurs conditions avec &&
+
+    4. CLASSES DYNAMIQUES :
+       - :class="{ 'resultat-positif': (nombre1 + nombre2) > 0 }"
+         → Applique la classe si la condition est vraie
+       
+       - Syntaxe objet pour plusieurs classes conditionnelles
+
+    5. RÉACTIVITÉ :
+       - Quand on tape dans les inputs, Vue détecte le changement
+       - Tous les calculs se mettent à jour automatiquement
+       - C'est la magie de la réactivité !
+
+    6. BONNES PRATIQUES :
+       - Gestion des erreurs (division par zéro)
+       - Feedback visuel (couleurs selon le résultat)
+       - UX soignée avec des transitions
+       - Code organisé et commenté
+       - Utilisation de .number pour typage automatique
+    -->
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction : Panier d'Achat avec Computed</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #7f8c8d;
+        }
+        
+        /* Catalogue */
+        .catalogue {
+            background: white;
+            padding: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .catalogue h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .produits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .produit-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .produit-card:hover {
+            border-color: #3498db;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .produit-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .produit-nom {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .produit-prix {
+            font-size: 24px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .btn-ajouter {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-ajouter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-ajouter:active {
+            transform: translateY(0);
+        }
+        
+        /* Panier */
+        .panier-section {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 15px 15px;
+        }
+        .panier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .panier-header h2 {
+            color: #2c3e50;
+        }
+        .badge-count {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .panier-vide {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+        .panier-vide-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .panier-items {
+            margin-bottom: 30px;
+        }
+        .panier-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .panier-item:hover {
+            background: #e9ecef;
+        }
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .item-info {
+            flex: 1;
+        }
+        .item-nom {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .item-prix {
+            color: #27ae60;
+            font-size: 16px;
+        }
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-quantite {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-quantite:hover {
+            background: #3498db;
+            color: white;
+        }
+        .quantite {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+        .item-sous-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 100px;
+            text-align: right;
+        }
+        .btn-supprimer {
+            padding: 10px 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-supprimer:hover {
+            background: #c0392b;
+        }
+        
+        /* Récapitulatif */
+        .recap {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+        }
+        .recap h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .recap-ligne {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .recap-ligne:last-child {
+            border-bottom: none;
+            border-top: 2px solid white;
+            margin-top: 10px;
+            padding-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .recap-label {
+            font-size: 16px;
+        }
+        .recap-valeur {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        /* Remise */
+        .remise-badge {
+            background: #f39c12;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Bouton vider */
+        .btn-vider {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn-vider:hover {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-valeur {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>🛒 Boutique en Ligne</h1>
+            <p>Panier d'achat avec propriétés computed</p>
+        </div>
+        
+        <!-- Catalogue de produits -->
+        <div class="catalogue">
+            <h2>📦 Catalogue de Produits</h2>
+            <div class="produits-grid">
+                <div 
+                    v-for="produit in produitsCatalogue"
+                    :key="produit.id"
+                    class="produit-card"
+                >
+                    <img :src="produit.image" :alt="produit.nom" class="produit-image">
+                    <div class="produit-nom">{{ produit.nom }}</div>
+                    <div class="produit-prix">{{ produit.prix.toFixed(2) }} €</div>
+                    <button @click="ajouterAuPanier(produit)" class="btn-ajouter">
+                        ➕ Ajouter au panier
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panier -->
+        <div class="panier-section">
+            <div class="panier-header">
+                <h2>🛒 Mon Panier</h2>
+                <span v-if="!panierVide" class="badge-count">
+                    {{ nombreArticles }} article{{ nombreArticles > 1 ? 's' : '' }}
+                </span>
+            </div>
+            
+            <!-- Panier vide -->
+            <div v-if="panierVide" class="panier-vide">
+                <div class="panier-vide-icon">🛒</div>
+                <h3>Votre panier est vide</h3>
+                <p>Ajoutez des produits pour commencer vos achats</p>
+            </div>
+            
+            <!-- Items du panier -->
+            <div v-else>
+                <div class="panier-items">
+                    <div 
+                        v-for="(item, index) in panier"
+                        :key="item.produit.id"
+                        class="panier-item"
+                    >
+                        <img :src="item.produit.image" :alt="item.produit.nom" class="item-image">
+                        
+                        <div class="item-info">
+                            <div class="item-nom">{{ item.produit.nom }}</div>
+                            <div class="item-prix">{{ item.produit.prix.toFixed(2) }} € / unité</div>
+                        </div>
+                        
+                        <div class="item-controls">
+                            <button 
+                                @click="diminuerQuantite(index)" 
+                                class="btn-quantite"
+                                title="Diminuer"
+                            >
+                                −
+                            </button>
+                            <span class="quantite">{{ item.quantite }}</span>
+                            <button 
+                                @click="augmenterQuantite(index)" 
+                                class="btn-quantite"
+                                title="Augmenter"
+                            >
+                                +
+                            </button>
+                        </div>
+                        
+                        <div class="item-sous-total">
+                            {{ (item.produit.prix * item.quantite).toFixed(2) }} €
+                        </div>
+                        
+                        <button 
+                            @click="supprimerDuPanier(index)" 
+                            class="btn-supprimer"
+                            title="Supprimer"
+                        >
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Récapitulatif -->
+                <div class="recap">
+                    <h3>💳 Récapitulatif</h3>
+                    
+                    <div class="recap-ligne">
+                        <span class="recap-label">Sous-total HT :</span>
+                        <span class="recap-valeur">{{ sousTotal.toFixed(2) }} €</span>
+                    </div>
+                    
+                    <div class="recap-ligne">
+                        <span class="recap-label">TVA ({{ (tauxTVA * 100).toFixed(0) }}%) :</span>
+                        <span class="recap-valeur">{{ montantTVA.toFixed(2) }} €</span>
+                    </div>
+                    
+                    <div v-if="remiseAppliquee > 0" class="recap-ligne">
+                        <span class="recap-label">Remise ({{ pourcentageRemise }}%) :</span>
+                        <span class="recap-valeur" style="color: #f39c12;">
+                            - {{ remiseAppliquee.toFixed(2) }} €
+                        </span>
+                    </div>
+                    
+                    <div class="recap-ligne">
+                        <span class="recap-label">TOTAL TTC :</span>
+                        <span class="recap-valeur">{{ totalTTC.toFixed(2) }} €</span>
+                    </div>
+                    
+                    <!-- Message de remise -->
+                    <div v-if="messageRemise" class="remise-badge">
+                        {{ messageRemise }}
+                    </div>
+                    
+                    <button @click="viderPanier" class="btn-vider">
+                        🗑️ Vider le panier
+                    </button>
+                </div>
+                
+                <!-- Statistiques -->
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-valeur">{{ nombreArticles }}</div>
+                        <div class="stat-label">Articles</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-valeur">{{ panier.length }}</div>
+                        <div class="stat-label">Produits différents</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-valeur">{{ prixMoyen.toFixed(2) }} €</div>
+                        <div class="stat-label">Prix moyen</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-valeur">{{ economie.toFixed(2) }} €</div>
+                        <div class="stat-label">Économie</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    // Catalogue de produits
+                    produitsCatalogue: [
+                        { 
+                            id: 1, 
+                            nom: 'Ordinateur Portable', 
+                            prix: 999, 
+                            image: 'https://via.placeholder.com/200x150/667eea/ffffff?text=Laptop'
+                        },
+                        { 
+                            id: 2, 
+                            nom: 'Souris Sans Fil', 
+                            prix: 29, 
+                            image: 'https://via.placeholder.com/200x150/764ba2/ffffff?text=Mouse'
+                        },
+                        { 
+                            id: 3, 
+                            nom: 'Clavier Mécanique', 
+                            prix: 149, 
+                            image: 'https://via.placeholder.com/200x150/2ecc71/ffffff?text=Keyboard'
+                        },
+                        { 
+                            id: 4, 
+                            nom: 'Écran 27 pouces', 
+                            prix: 349, 
+                            image: 'https://via.placeholder.com/200x150/e74c3c/ffffff?text=Monitor'
+                        },
+                        { 
+                            id: 5, 
+                            nom: 'Casque Audio', 
+                            prix: 79, 
+                            image: 'https://via.placeholder.com/200x150/f39c12/ffffff?text=Headset'
+                        },
+                        { 
+                            id: 6, 
+                            nom: 'Webcam HD', 
+                            prix: 69, 
+                            image: 'https://via.placeholder.com/200x150/3498db/ffffff?text=Webcam'
+                        }
+                    ],
+                    
+                    // Panier : tableau d'objets { produit, quantite }
+                    panier: [],
+                    
+                    // Configuration
+                    tauxTVA: 0.20 // 20%
+                }
+            },
+            
+            computed: {
+                // Le panier est-il vide ?
+                panierVide() {
+                    return this.panier.length === 0;
+                },
+                
+                // Nombre total d'articles (somme des quantités)
+                nombreArticles() {
+                    return this.panier.reduce((total, item) => total + item.quantite, 0);
+                },
+                
+                // Sous-total Hors Taxes
+                sousTotal() {
+                    return this.panier.reduce((total, item) => {
+                        return total + (item.produit.prix * item.quantite);
+                    }, 0);
+                },
+                
+                // Montant de la TVA
+                montantTVA() {
+                    return this.sousTotal * this.tauxTVA;
+                },
+                
+                // Pourcentage de remise selon le montant
+                pourcentageRemise() {
+                    if (this.sousTotal >= 1000) return 20;
+                    if (this.sousTotal >= 500) return 10;
+                    if (this.sousTotal >= 200) return 5;
+                    return 0;
+                },
+                
+                // Montant de la remise
+                remiseAppliquee() {
+                    return (this.sousTotal + this.montantTVA) * (this.pourcentageRemise / 100);
+                },
+                
+                // Total TTC (avec TVA et remise)
+                totalTTC() {
+                    return (this.sousTotal + this.montantTVA) - this.remiseAppliquee;
+                },
+                
+                // Prix moyen par article
+                prixMoyen() {
+                    if (this.nombreArticles === 0) return 0;
+                    return this.totalTTC / this.nombreArticles;
+                },
+                
+                // Économie réalisée
+                economie() {
+                    return this.remiseAppliquee;
+                },
+                
+                // Message de remise
+                messageRemise() {
+                    if (this.pourcentageRemise === 20) {
+                        return '🎉 Félicitations ! Remise de 20% appliquée !';
+                    } else if (this.pourcentageRemise === 10) {
+                        return '✨ Remise de 10% appliquée !';
+                    } else if (this.pourcentageRemise === 5) {
+                        return '👍 Remise de 5% appliquée !';
+                    } else if (this.sousTotal >= 100) {
+                        const restant = 200 - this.sousTotal;
+                        return `Encore ${restant.toFixed(2)} € pour une remise de 5% !`;
+                    }
+                    return null;
+                }
+            },
+            
+            methods: {
+                // Ajouter un produit au panier
+                ajouterAuPanier(produit) {
+                    // Vérifier si le produit existe déjà
+                    const itemExistant = this.panier.find(
+                        item => item.produit.id === produit.id
+                    );
+                    
+                    if (itemExistant) {
+                        // Augmenter la quantité
+                        itemExistant.quantite++;
+                    } else {
+                        // Ajouter le nouveau produit
+                        this.panier.push({
+                            produit: { ...produit }, // Copie du produit
+                            quantite: 1
+                        });
+                    }
+                },
+                
+                // Augmenter la quantité
+                augmenterQuantite(index) {
+                    this.panier[index].quantite++;
+                },
+                
+                // Diminuer la quantité
+                diminuerQuantite(index) {
+                    if (this.panier[index].quantite > 1) {
+                        this.panier[index].quantite--;
+                    } else {
+                        // Supprimer si quantité = 0
+                        this.supprimerDuPanier(index);
+                    }
+                },
+                
+                // Supprimer un produit du panier
+                supprimerDuPanier(index) {
+                    if (confirm('Supprimer cet article du panier ?')) {
+                        this.panier.splice(index, 1);
+                    }
+                },
+                
+                // Vider complètement le panier
+                viderPanier() {
+                    if (confirm('Êtes-vous sûr de vouloir vider le panier ?')) {
+                        this.panier = [];
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 POINTS CLÉS DE LA CORRECTION :
+    
+    1. STRUCTURE DES DONNÉES :
+       - produitsCatalogue : Array d'objets produits
+       - panier : Array d'objets { produit, quantite }
+       - Séparation claire catalogue / panier
+    
+    2. COMPUTED PROPERTIES (Les stars de cet exercice !) :
+       
+       a) panierVide :
+          → Retourne true/false selon panier.length
+          → Utilisé pour affichage conditionnel
+       
+       b) nombreArticles :
+          → reduce() pour sommer toutes les quantités
+          → Ex: 2 laptops + 1 souris = 3 articles
+       
+       c) sousTotal :
+          → reduce() pour calculer prix × quantité
+          → Base pour tous les autres calculs
+       
+       d) montantTVA :
+          → sousTotal × tauxTVA
+          → Dépend de sousTotal (recalcul auto)
+       
+       e) pourcentageRemise :
+          → Logique conditionnelle selon montant
+          → >= 1000€ → 20%, >= 500€ → 10%, >= 200€ → 5%
+       
+       f) remiseAppliquee :
+          → Calcule le montant de la remise
+          → (sousTotal + TVA) × (remise / 100)
+       
+       g) totalTTC :
+          → Calcul final avec TVA et remise
+          → Dépend de plusieurs autres computed
+       
+       h) prixMoyen :
+          → totalTTC / nombreArticles
+          → Gestion du cas division par 0
+       
+       i) messageRemise :
+          → Logique conditionnelle pour l'UX
+          → Encourage à acheter plus
+    
+    3. MÉTHODES :
+       
+       a) ajouterAuPanier(produit) :
+          → find() pour vérifier si existe
+          → Si oui : quantite++
+          → Si non : push nouveau item
+       
+       b) augmenterQuantite(index) :
+          → Simple incrémentation
+       
+       c) diminuerQuantite(index) :
+          → Si > 1 : décrémenter
+          → Si = 1 : supprimer
+       
+       d) supprimerDuPanier(index) :
+          → splice() pour retirer du tableau
+          → Confirmation utilisateur
+       
+       e) viderPanier() :
+          → Réinitialise panier à []
+          → Confirmation utilisateur
+    
+    4. RÉACTIVITÉ :
+       - Tous les computed se recalculent automatiquement
+       - Quand panier change → tous les totaux se mettent à jour
+       - Aucun besoin d'appeler manuellement les calculs
+       - Vue détecte les dépendances automatiquement
+    
+    5. AVANTAGES DES COMPUTED :
+       ✅ Mise en cache (pas de recalcul inutile)
+       ✅ Réactivité automatique
+       ✅ Code propre et lisible
+       ✅ Facile à maintenir
+       ✅ Composition de computed (un computed utilise un autre)
+    
+    6. BONNES PRATIQUES :
+       - Computed pour TOUS les calculs dérivés
+       - Methods pour les actions utilisateur
+       - Noms descriptifs (sousTotal, montantTVA, etc.)
+       - Gestion des cas limites (panier vide, division par 0)
+       - Confirmation avant suppression
+       - Messages utilisateur clairs
+    
+    7. OPTIMISATIONS :
+       - reduce() pour les sommes (performant)
+       - Computed au lieu de methods (cache)
+       - find() pour recherche (arrêt dès trouvé)
+       - Copie de produit {...produit} (isolation)
+    
+    8. UX :
+       - Badge avec nombre d'articles
+       - Message de remise dynamique
+       - Statistiques en temps réel
+       - Confirmation avant actions destructives
+       - Animations et transitions
+       - État vide géré élégamment
+    -->
+</body>
+</html>

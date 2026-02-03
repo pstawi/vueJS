@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction : Todo List avec Composants</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        #app {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .form-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .todo-form {
+            display: flex;
+            gap: 10px;
+        }
+        .todo-form input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .todo-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .todo-form button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .todo-form button:hover {
+            transform: translateY(-2px);
+        }
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        .todo-list {
+            padding: 20px;
+            min-height: 200px;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+        .todo-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .todo-item.complete {
+            opacity: 0.6;
+            border-left-color: #2ecc71;
+        }
+        .todo-item.complete .todo-text {
+            text-decoration: line-through;
+            color: #95a5a6;
+        }
+        .todo-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 16px;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        .delete-btn {
+            padding: 8px 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .stats {
+            padding: 25px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+        .stats-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- En-tête -->
+            <div class="header">
+                <h1>📝 Ma Todo List</h1>
+                <p>Organisez vos tâches efficacement</p>
+            </div>
+            
+            <!-- Formulaire d'ajout -->
+            <todo-form @add-todo="ajouterTodo"></todo-form>
+            
+            <!-- Filtres -->
+            <div class="filters">
+                <button 
+                    class="filter-btn"
+                    :class="{ active: filtre === 'toutes' }"
+                    @click="filtre = 'toutes'"
+                >
+                    Toutes
+                </button>
+                <button 
+                    class="filter-btn"
+                    :class="{ active: filtre === 'actives' }"
+                    @click="filtre = 'actives'"
+                >
+                    Actives
+                </button>
+                <button 
+                    class="filter-btn"
+                    :class="{ active: filtre === 'completes' }"
+                    @click="filtre = 'completes'"
+                >
+                    Complètes
+                </button>
+            </div>
+            
+            <!-- Liste des tâches -->
+            <todo-list 
+                :todos="todosFiltres"
+                @toggle-todo="toggleTodo"
+                @delete-todo="supprimerTodo"
+            ></todo-list>
+            
+            <!-- Statistiques -->
+            <div class="stats" v-if="todos.length > 0">
+                <div class="stats-title">📊 Statistiques</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ nombreTotal }}</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ nombreCompletes }}</div>
+                        <div class="stat-label">Complètes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ nombreRestantes }}</div>
+                        <div class="stat-label">Restantes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ pourcentage }}%</div>
+                        <div class="stat-label">Progression</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: pourcentage + '%' }"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        // Composant TodoForm
+        const TodoForm = {
+            name: 'TodoForm',
+            emits: ['add-todo'],
+            data() {
+                return {
+                    nouveauTodo: ''
+                }
+            },
+            methods: {
+                soumettre() {
+                    if (this.nouveauTodo.trim()) {
+                        this.$emit('add-todo', this.nouveauTodo.trim());
+                        this.nouveauTodo = '';
+                    }
+                }
+            },
+            template: `
+                <div class="form-section">
+                    <form @submit.prevent="soumettre" class="todo-form">
+                        <input 
+                            v-model="nouveauTodo"
+                            type="text" 
+                            placeholder="Ajouter une nouvelle tâche..."
+                        >
+                        <button type="submit">➕ Ajouter</button>
+                    </form>
+                </div>
+            `
+        };
+        
+        // Composant TodoItem
+        const TodoItem = {
+            name: 'TodoItem',
+            props: {
+                todo: {
+                    type: Object,
+                    required: true
+                }
+            },
+            emits: ['toggle', 'delete'],
+            template: `
+                <div class="todo-item" :class="{ complete: todo.complete }">
+                    <input 
+                        type="checkbox" 
+                        :checked="todo.complete"
+                        @change="$emit('toggle')"
+                        class="todo-checkbox"
+                    >
+                    <span 
+                        class="todo-text"
+                        @click="$emit('toggle')"
+                    >
+                        {{ todo.texte }}
+                    </span>
+                    <button 
+                        @click="$emit('delete')"
+                        class="delete-btn"
+                    >
+                        🗑️ Supprimer
+                    </button>
+                </div>
+            `
+        };
+        
+        // Composant TodoList
+        const TodoList = {
+            name: 'TodoList',
+            components: {
+                TodoItem
+            },
+            props: {
+                todos: {
+                    type: Array,
+                    required: true
+                }
+            },
+            emits: ['toggle-todo', 'delete-todo'],
+            template: `
+                <div class="todo-list">
+                    <div v-if="todos.length === 0" class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Aucune tâche à afficher</p>
+                    </div>
+                    <todo-item
+                        v-for="todo in todos"
+                        :key="todo.id"
+                        :todo="todo"
+                        @toggle="$emit('toggle-todo', todo.id)"
+                        @delete="$emit('delete-todo', todo.id)"
+                    ></todo-item>
+                </div>
+            `
+        };
+        
+        // Application principale
+        createApp({
+            components: {
+                TodoForm,
+                TodoList
+            },
+            data() {
+                return {
+                    todos: [
+                        { id: 1, texte: 'Apprendre VueJS', complete: false },
+                        { id: 2, texte: 'Créer un composant', complete: true },
+                        { id: 3, texte: 'Utiliser les props', complete: false },
+                        { id: 4, texte: 'Émettre des événements', complete: false }
+                    ],
+                    filtre: 'toutes' // 'toutes', 'actives', 'completes'
+                }
+            },
+            computed: {
+                todosFiltres() {
+                    switch (this.filtre) {
+                        case 'actives':
+                            return this.todos.filter(t => !t.complete);
+                        case 'completes':
+                            return this.todos.filter(t => t.complete);
+                        default:
+                            return this.todos;
+                    }
+                },
+                nombreTotal() {
+                    return this.todos.length;
+                },
+                nombreCompletes() {
+                    return this.todos.filter(t => t.complete).length;
+                },
+                nombreRestantes() {
+                    return this.todos.filter(t => !t.complete).length;
+                },
+                pourcentage() {
+                    if (this.nombreTotal === 0) return 0;
+                    return Math.round((this.nombreCompletes / this.nombreTotal) * 100);
+                }
+            },
+            methods: {
+                ajouterTodo(texte) {
+                    this.todos.push({
+                        id: Date.now(),
+                        texte: texte,
+                        complete: false
+                    });
+                },
+                toggleTodo(id) {
+                    const todo = this.todos.find(t => t.id === id);
+                    if (todo) {
+                        todo.complete = !todo.complete;
+                    }
+                },
+                supprimerTodo(id) {
+                    this.todos = this.todos.filter(t => t.id !== id);
+                }
+            }
+        }).mount('#app');
+    </script>
+
+    <!--
+    📝 POINTS CLÉS DE LA CORRECTION :
+    
+    1. ARCHITECTURE COMPOSANTS :
+       - App : État et logique métier
+       - TodoForm : Formulaire isolé
+       - TodoList : Liste container
+       - TodoItem : Item réutilisable
+    
+    2. COMMUNICATION :
+       - Props down : todos → TodoList → TodoItem
+       - Events up : TodoItem → TodoList → App
+       - Utilisation de $emit pour remonter les événements
+    
+    3. COMPUTED PROPERTIES :
+       - todosFiltres : Filtre les tâches
+       - nombreTotal, nombreCompletes, nombreRestantes
+       - pourcentage : Calcul automatique
+       → Réactivité automatique
+    
+    4. BONNES PRATIQUES :
+       - Validation des props
+       - Déclaration des emits
+       - Nommage cohérent (kebab-case pour événements)
+       - Composants réutilisables
+       - Séparation des responsabilités
+    
+    5. UX :
+       - État vide géré
+       - Filtres interactifs
+       - Feedback visuel
+       - Statistiques en temps réel
+    -->
+</body>
+</html>

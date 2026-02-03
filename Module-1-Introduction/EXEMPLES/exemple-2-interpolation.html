@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemple 2 : Interpolation et Expressions</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        #app {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .exemple {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #42b883;
+            border-radius: 4px;
+        }
+        code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🎨 Interpolation et Expressions VueJS</h1>
+
+        <!-- 1. Interpolation simple -->
+        <div class="exemple">
+            <h2>1. Interpolation Simple</h2>
+            <p><strong>Message :</strong> {{ message }}</p>
+            <p><strong>Nombre :</strong> {{ nombre }}</p>
+        </div>
+
+        <!-- 2. Expressions JavaScript -->
+        <div class="exemple">
+            <h2>2. Expressions JavaScript</h2>
+            <p><strong>Calcul :</strong> {{ nombre }} x 2 = {{ nombre * 2 }}</p>
+            <p><strong>Opérateur ternaire :</strong> Vous êtes {{ age >= 18 ? 'majeur' : 'mineur' }}</p>
+            <p><strong>Template literal :</strong> {{ `Bonjour ${prenom} ${nom}` }}</p>
+        </div>
+
+        <!-- 3. Méthodes de String -->
+        <div class="exemple">
+            <h2>3. Méthodes JavaScript</h2>
+            <p><strong>Majuscules :</strong> {{ message.toUpperCase() }}</p>
+            <p><strong>Longueur :</strong> Le message contient {{ message.length }} caractères</p>
+            <p><strong>Split et Join :</strong> {{ message.split(' ').join('-') }}</p>
+        </div>
+
+        <!-- 4. Manipulation de tableaux et objets -->
+        <div class="exemple">
+            <h2>4. Objets et Tableaux</h2>
+            <p><strong>Prénom :</strong> {{ utilisateur.prenom }}</p>
+            <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+            <p><strong>Nombre de compétences :</strong> {{ utilisateur.competences.length }}</p>
+            <p><strong>Première compétence :</strong> {{ utilisateur.competences[0] }}</p>
+        </div>
+
+        <!-- 5. Valeurs booléennes -->
+        <div class="exemple">
+            <h2>5. Valeurs Booléennes</h2>
+            <p><strong>Est connecté :</strong> {{ estConnecte ? 'Oui ✅' : 'Non ❌' }}</p>
+            <p><strong>Mode sombre :</strong> {{ modeSombre ? 'Activé 🌙' : 'Désactivé ☀️' }}</p>
+        </div>
+
+        <!-- 6. Calculs plus complexes -->
+        <div class="exemple">
+            <h2>6. Calculs Complexes</h2>
+            <p><strong>Prix TTC :</strong> {{ (prixHT * (1 + tauxTVA)).toFixed(2) }} €</p>
+            <p><strong>Réduction :</strong> {{ (prixHT * reduction / 100).toFixed(2) }} €</p>
+            <p><strong>Prix final :</strong> {{ (prixHT * (1 + tauxTVA) - (prixHT * reduction / 100)).toFixed(2) }} €</p>
+        </div>
+
+        <!-- 7. Date et heure -->
+        <div class="exemple">
+            <h2>7. Date et Heure</h2>
+            <p><strong>Date actuelle :</strong> {{ dateActuelle }}</p>
+            <p><strong>Année :</strong> {{ new Date().getFullYear() }}</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    // Données simples
+                    message: 'Bonjour Vue.js',
+                    nombre: 42,
+                    age: 25,
+                    prenom: 'Jean',
+                    nom: 'Dupont',
+                    
+                    // Booléens
+                    estConnecte: true,
+                    modeSombre: false,
+                    
+                    // Objet
+                    utilisateur: {
+                        prenom: 'Marie',
+                        nom: 'Martin',
+                        email: 'marie.martin@example.com',
+                        competences: ['JavaScript', 'Vue.js', 'CSS']
+                    },
+                    
+                    // Calculs financiers
+                    prixHT: 100,
+                    tauxTVA: 0.20,  // 20%
+                    reduction: 10,   // 10%
+                    
+                    // Date
+                    dateActuelle: new Date().toLocaleDateString('fr-FR', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

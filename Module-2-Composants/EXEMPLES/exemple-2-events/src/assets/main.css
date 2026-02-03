@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #2c3e50;
+}
+
+#app {
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.total-display {
+  text-align: center;
+  font-size: 48px;
+  font-weight: bold;
+  margin: 30px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+}
+
+.compteurs-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.historique {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.historique h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.historique-item {
+  padding: 8px;
+  margin: 5px 0;
+  background: white;
+  border-left: 3px solid #3498db;
+  border-radius: 3px;
+  font-size: 14px;
+}

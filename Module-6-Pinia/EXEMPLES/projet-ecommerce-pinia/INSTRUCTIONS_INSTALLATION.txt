@@ -1,0 +1,125 @@
+╔═══════════════════════════════════════════════════════════════╗
+║   🛒 PROJET E-COMMERCE - PINIA                                ║
+║   Installation pour le cours                                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📋 ÉTAPES D'INSTALLATION :
+
+1️⃣  Créer un nouveau projet Vue
+   ─────────────────────────────
+   
+   Ouvrir un terminal et taper :
+   
+   npm create vue@latest ecommerce-pinia
+   
+   Sélectionner :
+   ✅ Vue Router : Oui
+   ✅ Pinia : Oui  ← Important !
+   ❌ TypeScript : Non
+   ✅ ESLint : Oui (recommandé)
+   
+   Autres options : Non
+
+
+2️⃣  Aller dans le dossier
+   ─────────────────────────
+   
+   cd ecommerce-pinia
+
+
+3️⃣  Installer les dépendances
+   ─────────────────────────────
+   
+   npm install
+   
+   ⏳ Attendre (1-2 min)
+
+
+4️⃣  Copier les fichiers du cours
+   ─────────────────────────────────
+   
+   Copier TOUT le contenu de :
+   Module-6-Pinia/EXEMPLES/projet-ecommerce-pinia/src/
+   
+   Dans :
+   ecommerce-pinia/src/
+   
+   ⚠️ Remplacer les fichiers existants
+
+
+5️⃣  Lancer le projet
+   ───────────────────
+   
+   npm run dev
+   
+   ✅ Ouvrir http://localhost:5173
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏪 STORES PINIA INCLUS :
+
+   📦 authStore (stores/auth.js)
+   └─ Gestion authentification
+   └─ State : user, token
+   └─ Actions : login, logout
+
+   📦 productsStore (stores/products.js)
+   └─ Gestion produits (8 produits inclus)
+   └─ State : products[], selectedCategory
+   └─ Getters : filteredProducts, categories
+
+   📦 cartStore (stores/cart.js)
+   └─ Gestion panier
+   └─ State : items[]
+   └─ Getters : totalItems, subtotal, total
+   └─ Actions : addToCart, removeFromCart
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 COMPTES DE TEST :
+
+   Admin :
+   └─ Email : admin@shop.com
+   └─ Mot de passe : admin
+
+   User :
+   └─ Email : user@shop.com
+   └─ Mot de passe : user
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VÉRIFICATION :
+
+1. Aller sur /products
+2. Cliquer sur filtres → Produits filtrés ✅
+3. Ajouter au panier → Badge panier s'incrémente ✅
+4. Aller sur /cart → Total calculé auto ✅
+5. Modifier quantité → Total se met à jour ✅
+6. Ouvrir DevTools → Onglet "Pinia" visible ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 OBSERVER DANS VUE DEVTOOLS :
+
+F12 → Onglet "Pinia"
+
+- Voir les 3 stores
+- Inspecter le state en temps réel
+- Observer les actions
+- Modifier le state en direct
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 CONCEPTS DÉMONTRÉS :
+
+✅ State centralisé
+✅ Getters réactifs
+✅ Actions pour modifier le state
+✅ Communication entre stores
+✅ storeToRefs pour destructuration
+✅ Intégration Router + Pinia
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Projet prêt ! 🎉
