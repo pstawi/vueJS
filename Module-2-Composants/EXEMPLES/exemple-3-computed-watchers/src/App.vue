@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1>🛒 Panier d'Achat - Computed & Watchers</h1>
+    <h1>Panier d'achat - Computed & Watchers</h1>
 
-    <!-- Section 1 : Recherche et Filtrage (Computed) -->
+    <!-- Section 1 : Recherche et filtrage (computed) -->
     <div class="section">
-      <h2>🔍 Recherche de Produits</h2>
+      <h2>Recherche de produits</h2>
       <input
         v-model="recherche"
         type="text"
@@ -25,9 +25,9 @@
       </div>
     </div>
 
-    <!-- Section 2 : Statistiques (Computed) -->
+    <!-- Section 2 : Statistiques (computed) -->
     <div class="section">
-      <h2>📊 Statistiques du Panier</h2>
+      <h2>Statistiques du panier</h2>
 
       <div class="stats">
         <div class="stat-box">
@@ -62,36 +62,20 @@
       </div>
     </div>
 
-    <!-- Section 3 : Observateur (Watcher) -->
+    <!-- Section 3 : Watcher simple -->
     <div class="section">
-      <h2>👁️ Surveillance des Prix (Watcher)</h2>
-      <p>
-        <label>Seuil d'alerte : </label>
-        <input
-          v-model.number="seuilAlerte"
-          type="number"
-          style="width: 100px;"
-        > €
-      </p>
+      <h2>Watcher sur le total TTC</h2>
       <p style="color: #7f8c8d; font-size: 14px;">
-        Vous serez alerté si le total TTC dépasse ce montant
+        Le message ci-dessous est mis à jour automatiquement quand le total TTC change.
       </p>
 
-      <div class="log">
-        <div
-          v-for="(log, index) in logs"
-          :key="index"
-          class="log-item"
-        >
-          {{ log }}
-        </div>
-      </div>
+      <p><strong>Message :</strong> {{ alerteMessage }}</p>
 
       <button @click="ajouterProduitAleatoire">
-        ➕ Ajouter un produit aléatoire
+        Ajouter un produit aléatoire
       </button>
       <button @click="viderPanier">
-        🗑️ Vider le panier
+        Vider le panier
       </button>
     </div>
   </div>
@@ -104,9 +88,8 @@ export default {
   data() {
     return {
       recherche: '',
-      seuilAlerte: 100,
       tauxTVA: 0.20,
-      logs: ['📝 Système de surveillance initialisé'],
+      alerteMessage: '',
       produits: [
         { id: 1, nom: 'MacBook Pro', prix: 1999, quantite: 1, categorie: 'Informatique' },
         { id: 2, nom: 'iPhone 15', prix: 999, quantite: 2, categorie: 'Téléphonie' },
@@ -123,6 +106,9 @@ export default {
   },
 
   computed: {
+    // Propriété computed : retourne la liste des produits filtrés
+    // en fonction du texte saisi dans le champ "recherche".
+    // Elle est recalculée automatiquement quand `recherche` ou `produits` changent.
     produitsFiltres() {
       if (!this.recherche) return this.produits
       const terme = this.recherche.toLowerCase()
@@ -132,64 +118,55 @@ export default {
           p.categorie.toLowerCase().includes(terme)
       )
     },
+    // Nombre de lignes dans le panier
     nombreProduits() {
       return this.produits.length
     },
+    // Somme des quantités de tous les produits
     quantiteTotale() {
       return this.produits.reduce((sum, p) => sum + p.quantite, 0)
     },
+    // Total hors taxes (HT)
     totalHT() {
       return this.produits.reduce((sum, p) => sum + p.prix * p.quantite, 0)
     },
+    // Total toutes taxes comprises (TTC), dérivé de totalHT
     totalTTC() {
       return this.totalHT * (1 + this.tauxTVA)
     },
+    // Liste des catégories différentes présentes dans le panier
     categoriesPresentes() {
       return [...new Set(this.produits.map(p => p.categorie))]
     },
+    // Message affiché en fonction du montant total TTC
     messageRemise() {
       if (this.totalTTC >= 5000) {
-        return '🎉 Félicitations ! Vous bénéficiez de 20% de remise !'
+        return 'Vous bénéficiez de 20 % de remise.'
       }
       if (this.totalTTC >= 3000) {
-        return '✨ Vous bénéficiez de 10% de remise !'
+        return 'Vous bénéficiez de 10 % de remise.'
       }
       if (this.totalTTC >= 1000) {
-        return '👍 Livraison gratuite !'
+        return 'Livraison gratuite.'
       }
-      return `Encore ${(1000 - this.totalTTC).toFixed(2)} € pour la livraison gratuite`
+      return `Encore ${(1000 - this.totalTTC).toFixed(2)} € pour la livraison gratuite.`
     }
   },
 
   watch: {
-    totalTTC: {
-      handler(nouveau, ancien) {
-        const timestamp = new Date().toLocaleTimeString('fr-FR')
-
-        if (ancien !== undefined) {
-          this.logs.unshift(
-            `[${timestamp}] Total TTC: ${ancien.toFixed(2)} € → ${nouveau.toFixed(2)} €`
-          )
-        }
-
-        if (nouveau > this.seuilAlerte && ancien <= this.seuilAlerte) {
-          this.logs.unshift(
-            `[${timestamp}] ⚠️ ALERTE : Seuil de ${this.seuilAlerte} € dépassé !`
-          )
-          alert(
-            `⚠️ Attention ! Le montant total (${nouveau.toFixed(2)} €) dépasse le seuil d'alerte (${this.seuilAlerte} €)`
-          )
-        }
-
-        if (this.logs.length > 20) {
-          this.logs.pop()
-        }
-      },
-      immediate: false
-    },
-    seuilAlerte(nouveau) {
-      const timestamp = new Date().toLocaleTimeString('fr-FR')
-      this.logs.unshift(`[${timestamp}] 🔔 Seuil d'alerte modifié : ${nouveau} €`)
+    // Watcher : exécute ce code à chaque fois que `totalTTC` change.
+    // Ici, on ne retourne PAS de valeur, on met à jour `alerteMessage`
+    // (effet de bord déclenché par le changement de `totalTTC`).
+    totalTTC(nouveau) {
+      if (nouveau === 0) {
+        this.alerteMessage = 'Votre panier est vide.'
+      } else if (nouveau < 100) {
+        this.alerteMessage = 'Petit panier.'
+      } else if (nouveau < 500) {
+        this.alerteMessage = 'Panier moyen.'
+      } else {
+        this.alerteMessage = 'Panier important.'
+      }
     }
   },
 
@@ -208,11 +185,7 @@ export default {
       })
     },
     viderPanier() {
-      if (confirm('Êtes-vous sûr de vouloir vider le panier ?')) {
-        this.produits = []
-        const timestamp = new Date().toLocaleTimeString('fr-FR')
-        this.logs.unshift(`[${timestamp}] 🗑️ Panier vidé`)
-      }
+      this.produits = []
     }
   }
 }

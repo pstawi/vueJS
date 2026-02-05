@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Correction simple – Todo List avec composants</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 16px;
+    }
+    #app {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 16px;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 4px;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+    /* Formulaire */
+    .todo-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .todo-form input {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    .todo-form button {
+      padding: 6px 12px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      background-color: #ffffff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    /* Liste */
+    .todo-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .todo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid #eeeeee;
+    }
+    .todo-text {
+      cursor: pointer;
+    }
+    .todo-text.complete {
+      text-decoration: line-through;
+      color: #888888;
+    }
+    .todo-item button {
+      padding: 4px 8px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      background-color: #ffffff;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    /* Statistiques */
+    .stats {
+      margin-top: 16px;
+      padding-top: 8px;
+      border-top: 1px solid #dddddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Ma Todo List</h1>
+
+    <!-- Formulaire d’ajout -->
+    <todo-form @add-todo="ajouterTodo"></todo-form>
+
+    <!-- Liste des tâches -->
+    <todo-list
+      :todos="todos"
+      @toggle-todo="toggleTodo"
+      @delete-todo="supprimerTodo"
+    ></todo-list>
+
+    <!-- Statistiques simples -->
+    <div class="stats" v-if="todos.length > 0">
+      <div>Total : {{ nombreTotal }} tâche(s)</div>
+      <div>Complètes : {{ nombreCompletes }}</div>
+      <div>Restantes : {{ nombreRestantes }}</div>
+      <div>Progression : {{ pourcentageCompletion }} %</div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    const TodoForm = {
+      name: 'TodoForm',
+      emits: ['add-todo'],
+      data() {
+        return {
+          nouveauTodo: ''
+        };
+      },
+      methods: {
+        soumettre() {
+          const texte = this.nouveauTodo.trim();
+          if (texte === '') {
+            return;
+          }
+          this.$emit('add-todo', texte);
+          this.nouveauTodo = '';
+        }
+      },
+      template: `
+        <form class="todo-form" @submit.prevent="soumettre">
+          <input
+            v-model="nouveauTodo"
+            type="text"
+            placeholder="Ajouter une tâche..."
+          >
+          <button type="submit">Ajouter</button>
+        </form>
+      `
+    };
+
+    const TodoItem = {
+      name: 'TodoItem',
+      props: {
+        todo: {
+          type: Object,
+          required: true
+        }
+      },
+      emits: ['toggle', 'delete'],
+      methods: {
+        onToggle() {
+          this.$emit('toggle', this.todo.id);
+        },
+        onDelete() {
+          this.$emit('delete', this.todo.id);
+        }
+      },
+      template: `
+        <li class="todo-item">
+          <span
+            class="todo-text"
+            :class="{ complete: todo.complete }"
+            @click="onToggle"
+          >
+            {{ todo.texte }}
+          </span>
+          <button @click="onDelete">Supprimer</button>
+        </li>
+      `
+    };
+
+    const TodoList = {
+      name: 'TodoList',
+      components: { TodoItem },
+      props: {
+        todos: {
+          type: Array,
+          required: true
+        }
+      },
+      emits: ['toggle-todo', 'delete-todo'],
+      methods: {
+        onToggle(id) {
+          this.$emit('toggle-todo', id);
+        },
+        onDelete(id) {
+          this.$emit('delete-todo', id);
+        }
+      },
+      template: `
+        <ul class="todo-list">
+          <todo-item
+            v-for="todo in todos"
+            :key="todo.id"
+            :todo="todo"
+            @toggle="onToggle"
+            @delete="onDelete"
+          ></todo-item>
+        </ul>
+      `
+    };
+
+    createApp({
+      components: { TodoForm, TodoList },
+      data() {
+        return {
+          todos: [
+            { id: 1, texte: 'Apprendre VueJS', complete: false },
+            { id: 2, texte: 'Créer un composant', complete: true },
+            { id: 3, texte: 'Utiliser les props', complete: false }
+          ]
+        };
+      },
+      computed: {
+        nombreTotal() {
+          return this.todos.length;
+        },
+        nombreCompletes() {
+          return this.todos.filter(t => t.complete).length;
+        },
+        nombreRestantes() {
+          return this.todos.filter(t => !t.complete).length;
+        },
+        pourcentageCompletion() {
+          if (this.nombreTotal === 0) return 0;
+          return Math.round((this.nombreCompletes / this.nombreTotal) * 100);
+        }
+      },
+      methods: {
+        ajouterTodo(texte) {
+          const texteNettoye = texte.trim();
+          if (texteNettoye === '') {
+            return;
+          }
+          this.todos.push({
+            id: Date.now(),
+            texte: texteNettoye,
+            complete: false
+          });
+        },
+        toggleTodo(id) {
+          const todo = this.todos.find(t => t.id === id);
+          if (todo) {
+            todo.complete = !todo.complete;
+          }
+        },
+        supprimerTodo(id) {
+          this.todos = this.todos.filter(t => t.id !== id);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
+

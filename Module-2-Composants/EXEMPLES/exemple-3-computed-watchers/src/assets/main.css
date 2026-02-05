@@ -1,16 +1,16 @@
 body {
   font-family: Arial, sans-serif;
-  max-width: 1000px;
-  margin: 30px auto;
-  padding: 20px;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 16px;
+  background-color: #f2f2f2;
 }
 
 #app {
-  background: white;
-  border-radius: 15px;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 24px;
 }
 
 h1, h2 {
@@ -18,21 +18,21 @@ h1, h2 {
 }
 
 .section {
-  background: #f8f9fa;
-  padding: 25px;
-  border-radius: 10px;
-  margin: 20px 0;
-  border-left: 4px solid #3498db;
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 16px 0;
+  border: 1px solid #e0e0e0;
 }
 
 input[type="text"],
 input[type="number"] {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  font-size: 14px;
 }
 
 input:focus {
@@ -44,11 +44,11 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  margin: 10px 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin: 8px 0;
+  background: #ffffff;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
 }
 
 .produit-info {
@@ -57,33 +57,33 @@ input:focus {
 
 .produit-nom {
   font-weight: bold;
-  font-size: 18px;
+  font-size: 15px;
   color: #2c3e50;
 }
 
 .produit-prix {
-  color: #27ae60;
-  font-size: 16px;
-  margin-top: 5px;
+  color: #333333;
+  font-size: 14px;
+  margin-top: 4px;
 }
 
 .produit-quantite {
-  background: #3498db;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: bold;
+  background: #e0e0e0;
+  color: #333333;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
 }
 
 .total-panier {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
+  background: #f0f0f0;
+  color: #333333;
+  padding: 12px;
+  border-radius: 4px;
   text-align: center;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
-  margin: 20px 0;
+  margin: 16px 0;
 }
 
 .stats {
@@ -94,45 +94,43 @@ input:focus {
 }
 
 .stat-box {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
+  background: #f4f4f4;
+  color: #333333;
+  padding: 12px;
+  border-radius: 4px;
   text-align: center;
 }
 
 .stat-valeur {
-  font-size: 32px;
+  font-size: 20px;
   font-weight: bold;
 }
 
 .stat-label {
-  font-size: 14px;
-  opacity: 0.9;
-  margin-top: 5px;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .badge {
   display: inline-block;
-  padding: 5px 12px;
-  border-radius: 15px;
+  padding: 3px 8px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: bold;
-  margin: 5px 2px;
-  background: #3498db;
-  color: white;
+  margin: 4px 2px;
+  background: #e0e0e0;
+  color: #333333;
 }
 
 .log {
-  background: #2c3e50;
-  color: #2ecc71;
-  padding: 15px;
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
+  background: #f4f4f4;
+  color: #333333;
+  padding: 10px;
+  border-radius: 3px;
   font-size: 12px;
   max-height: 200px;
   overflow-y: auto;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .log-item {
@@ -140,16 +138,16 @@ input:focus {
 }
 
 button {
-  padding: 10px 20px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #333333;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
   cursor: pointer;
-  font-weight: bold;
-  margin: 5px;
+  font-weight: normal;
+  margin: 4px;
 }
 
 button:hover {
-  background: #c0392b;
+  background: #f0f0f0;
 }

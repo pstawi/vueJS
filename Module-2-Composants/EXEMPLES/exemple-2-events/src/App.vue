@@ -1,41 +1,18 @@
 <template>
   <div>
-    <h1>🔢 Compteurs avec Événements</h1>
+    <h1>Exemple 2 – Événements</h1>
     <p style="text-align: center; color: #7f8c8d;">
-      Communication Enfant → Parent via événements personnalisés
+      Un composant enfant informe le parent de la nouvelle valeur du compteur.
     </p>
 
-    <div class="total-display">Total : {{ total }}</div>
+    <div class="total-display">Valeur du compteur : {{ valeurCompteur }}</div>
 
     <div class="compteurs-container">
       <CompteurComponent
-        nom="Compteur A"
-        :valeur-initiale="10"
-        @increment="gererIncrement"
-        @decrement="gererDecrement"
-        @reset="gererReset"
+        nom="Compteur principal"
+        :valeur-initiale="0"
+        @update="mettreAJourValeur"
       />
-      <CompteurComponent
-        nom="Compteur B"
-        :valeur-initiale="5"
-        @increment="gererIncrement"
-        @decrement="gererDecrement"
-        @reset="gererReset"
-      />
-    </div>
-
-    <div class="historique">
-      <h3>📜 Historique</h3>
-      <div
-        v-for="(action, index) in historique"
-        :key="index"
-        class="historique-item"
-      >
-        {{ action }}
-      </div>
-      <p v-if="historique.length === 0" style="text-align: center; color: #7f8c8d;">
-        Aucune action pour le moment
-      </p>
     </div>
   </div>
 </template>
@@ -52,29 +29,13 @@ export default {
 
   data() {
     return {
-      total: 15,
-      historique: []
+      valeurCompteur: 0
     }
   },
 
   methods: {
-    gererIncrement(data) {
-      this.total++
-      this.ajouterHistorique(`➕ ${data.nom} incrémenté à ${data.valeur}`)
-    },
-    gererDecrement(data) {
-      this.total--
-      this.ajouterHistorique(`➖ ${data.nom} décrémenté à ${data.valeur}`)
-    },
-    gererReset(data) {
-      this.ajouterHistorique(`🔄 ${data.nom} réinitialisé à ${data.valeur}`)
-    },
-    ajouterHistorique(message) {
-      const timestamp = new Date().toLocaleTimeString('fr-FR')
-      this.historique.unshift(`[${timestamp}] ${message}`)
-      if (this.historique.length > 10) {
-        this.historique.pop()
-      }
+    mettreAJourValeur(nouvelleValeur) {
+      this.valeurCompteur = nouvelleValeur
     }
   }
 }

@@ -277,6 +277,30 @@ data() {
 }
 ```
 
+### 2.5 Props vs Événements : qui fait quoi ?
+
+**Props** et **événements** sont complémentaires et vont toujours dans des sens opposés :
+
+- **Props** : **parent → enfant**
+  - Le parent *donne* des données à l’enfant.
+  - L’enfant **reçoit** ces valeurs via `props`, sans les modifier.
+  - Exemple : un parent passe `:valeur-initiale="0"` à un compteur.
+
+- **Événements (`$emit`)** : **enfant → parent**
+  - L’enfant *préviens* le parent que quelque chose s’est passé.
+  - Il appelle `this.$emit('nom-evenement', desDonnees)`.
+  - Le parent **écoute** avec `@nom-evenement="maMethode"` et réagit.
+
+On peut résumer ainsi :
+
+- **Le parent contrôle les données “source de vérité”** (état principal).
+- **Les enfants affichent ces données et remontent des actions** (clic, saisie, etc.) via des événements.
+
+Cela garantit un **flux de données clair** :
+
+- **données** : parent → enfant (props)
+- **actions / notifications** : enfant → parent (events)
+
 ---
 
 ## 3. Communication Enfant-Parent : Événements Personnalisés
@@ -361,11 +385,14 @@ export default {
 
 ---
 
-## 4. Propriétés Computed (Calculées)
+## 4. Propriétés computed (calculées)
 
-### 4.1 Qu'est-ce qu'une propriété computed ?
+### 4.1 Idée simple
 
-Les **computed properties** sont des propriétés dérivées qui se calculent automatiquement en fonction d'autres données.
+Une **propriété computed** est une valeur **calculée automatiquement** à partir de `data()`.
+Elle est recalculée quand les données dont elle dépend changent.
+
+Exemple : afficher un **nom complet** à partir d’un prénom et d’un nom.
 
 ```vue
 <template>
@@ -385,233 +412,99 @@ export default {
     }
   },
   computed: {
-    // Propriété calculée
     nomComplet() {
-      return `${this.prenom} ${this.nom}`;
+      // Cette fonction est appelée automatiquement
+      // quand `prenom` ou `nom` changent.
+      return this.prenom + ' ' + this.nom
     }
   }
 }
 </script>
 ```
 
-### 4.2 Computed vs Methods
+### 4.2 Computed vs méthode
+
+Avec une **méthode**, le calcul est exécuté à chaque affichage.
+Avec une **computed**, Vue mémorise le résultat tant que les données ne changent pas.
 
 ```javascript
 export default {
   data() {
     return {
-      items: [1, 2, 3, 4, 5]
+      nombres: [1, 2, 3]
     }
   },
-  
-  // ✅ COMPUTED : Mis en cache, recalculé seulement si items change
+
   computed: {
+    // Utilisation recommandée : total comme propriété calculée
     total() {
-      console.log('Calcul du total');
-      return this.items.reduce((sum, item) => sum + item, 0);
+      return this.nombres.reduce((somme, n) => somme + n, 0)
     }
   },
-  
-  // ❌ METHOD : Recalculé à chaque render
+
   methods: {
+    // Possible aussi, mais recalculé à chaque appel
     calculerTotal() {
-      console.log('Calcul du total');
-      return this.items.reduce((sum, item) => sum + item, 0);
+      return this.nombres.reduce((somme, n) => somme + n, 0)
     }
   }
 }
 ```
 
-**Quand utiliser computed ?**
-- ✅ Calculs dérivés de données réactives
-- ✅ Filtrage/transformation de listes
-- ✅ Formatage de données
-- ✅ Besoin de mise en cache
+En pratique, pensez :
 
-**Quand utiliser methods ?**
-- ✅ Actions avec effets de bord
-- ✅ Événements utilisateur
-- ✅ Opérations asynchrones
-
-### 4.3 Computed avec setter
-
-```javascript
-computed: {
-  nomComplet: {
-    // Getter
-    get() {
-      return `${this.prenom} ${this.nom}`;
-    },
-    
-    // Setter
-    set(nouveauNom) {
-      const parts = nouveauNom.split(' ');
-      this.prenom = parts[0];
-      this.nom = parts[1];
-    }
-  }
-}
-```
-
-### 4.4 Exemples pratiques
-
-```javascript
-export default {
-  data() {
-    return {
-      produits: [
-        { nom: 'Produit 1', prix: 10, quantite: 2 },
-        { nom: 'Produit 2', prix: 20, quantite: 1 }
-      ],
-      recherche: ''
-    }
-  },
-  
-  computed: {
-    // Total du panier
-    total() {
-      return this.produits.reduce((sum, p) => sum + (p.prix * p.quantite), 0);
-    },
-    
-    // Filtrage
-    produitsFiltres() {
-      return this.produits.filter(p => 
-        p.nom.toLowerCase().includes(this.recherche.toLowerCase())
-      );
-    },
-    
-    // Tri
-    produitsTriesParPrix() {
-      return [...this.produits].sort((a, b) => a.prix - b.prix);
-    },
-    
-    // Condition
-    aProduits() {
-      return this.produits.length > 0;
-    }
-  }
-}
-```
+- **computed** : “Je veux une **valeur dérivée** (total, texte formaté, liste filtrée, etc.).”
+- **méthode** : “Je veux **faire une action** (répondre à un clic, appeler une API, etc.).”
 
 ---
 
-## 5. Watchers (Observateurs)
+## 5. Watchers (observateurs)
 
-### 5.1 Qu'est-ce qu'un watcher ?
+### 5.1 Idée simple
 
-Les **watchers** permettent d'exécuter du code en réponse aux changements de données.
+Un **watcher** permet d’**exécuter du code quand une donnée change**.
+On ne retourne rien : on exécute une action (mettre à jour un message, appeler une fonction, etc.).
 
 ```javascript
 export default {
   data() {
     return {
-      question: '',
-      reponse: 'Posez une question...'
+      texte: '',
+      infoMessage: 'Commencez à taper...'
     }
   },
-  
+
   watch: {
-    // Observer la propriété 'question'
-    question(nouveauTexte, ancienTexte) {
-      console.log(`Question changée de "${ancienTexte}" à "${nouveauTexte}"`);
-      
-      if (nouveauTexte.includes('?')) {
-        this.obtenirReponse();
+    // Cette fonction est appelée à chaque fois que `texte` change.
+    texte(nouveauTexte) {
+      if (nouveauTexte.length === 0) {
+        this.infoMessage = 'Commencez à taper...'
+      } else if (nouveauTexte.length < 10) {
+        this.infoMessage = 'Texte court'
+      } else {
+        this.infoMessage = 'Texte long'
       }
     }
-  },
-  
-  methods: {
-    obtenirReponse() {
-      this.reponse = 'Réflexion...';
-      // Appel API, etc.
-    }
   }
 }
 ```
 
-### 5.2 Options des watchers
+### 5.2 Computed vs watcher
 
-```javascript
-watch: {
-  // Observer en profondeur (objets/tableaux)
-  utilisateur: {
-    handler(nouveau, ancien) {
-      console.log('Utilisateur modifié');
-    },
-    deep: true, // Observer les propriétés imbriquées
-    immediate: true // Exécuter immédiatement au montage
-  },
-  
-  // Observer une propriété imbriquée
-  'utilisateur.nom'(nouveau, ancien) {
-    console.log('Nom modifié');
-  }
-}
-```
+- **Computed** : je veux **obtenir une valeur** à partir d’autres valeurs.  
+  Exemple : `totalTTC`, `nomComplet`, liste filtrée.
 
-### 5.3 Computed vs Watch
+- **Watcher** : je veux **réagir à un changement** (effet de bord).  
+  Exemple : afficher un message, sauvegarder dans `localStorage`, lancer une requête.
 
-**Computed** : Pour des calculs synchrones dérivés
-```javascript
-computed: {
-  nomComplet() {
-    return `${this.prenom} ${this.nom}`;
-  }
-}
-```
+Résumé :
 
-**Watch** : Pour des effets de bord (API, localStorage, etc.)
-```javascript
-watch: {
-  question(nouveau) {
-    // Appel API asynchrone
-    this.fetchReponse(nouveau);
-  }
-}
-```
-
-### 5.4 Cas d'usage pratiques
-
-```javascript
-export default {
-  data() {
-    return {
-      recherche: '',
-      resultats: [],
-      parametre: 'valeur'
-    }
-  },
-  
-  watch: {
-    // Debouncing pour recherche
-    recherche(nouveau) {
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = setTimeout(() => {
-        this.effectuerRecherche(nouveau);
-      }, 300);
-    },
-    
-    // Synchroniser avec localStorage
-    parametre(nouveau) {
-      localStorage.setItem('parametre', nouveau);
-    }
-  },
-  
-  methods: {
-    effectuerRecherche(terme) {
-      // Appel API
-      fetch(`/api/search?q=${terme}`)
-        .then(r => r.json())
-        .then(data => this.resultats = data);
-    }
-  }
-}
-```
+- computed → “donne-moi une **valeur calculée**”
+- watcher → “**fais quelque chose** quand ça change”
 
 ---
 
-## 6. Réactivité en Profondeur
+## 6. Réactivité en profondeur
 
 ### 6.1 Comment fonctionne la réactivité ?
 

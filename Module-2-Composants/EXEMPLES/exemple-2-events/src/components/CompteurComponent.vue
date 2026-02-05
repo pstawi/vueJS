@@ -3,10 +3,10 @@
     <div class="compteur-nom">{{ nom }}</div>
     <div class="compteur-valeur">{{ compteur }}</div>
     <div class="compteur-boutons">
-      <button @click="decrementer" class="btn-decrement">➖</button>
-      <button @click="incrementer" class="btn-increment">➕</button>
+      <button @click="decrementer" class="btn-decrement">-</button>
+      <button @click="incrementer" class="btn-increment">+</button>
     </div>
-    <button @click="reinitialiser" class="btn-reset">🔄 Réinitialiser</button>
+    <button @click="reinitialiser" class="btn-reset">Réinitialiser</button>
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
     }
   },
 
-  emits: ['increment', 'decrement', 'reset'],
+  emits: ['update'],
 
   data() {
     return {
@@ -36,24 +36,15 @@ export default {
   methods: {
     incrementer() {
       this.compteur++
-      this.$emit('increment', {
-        nom: this.nom,
-        valeur: this.compteur
-      })
+      this.$emit('update', this.compteur)
     },
     decrementer() {
       this.compteur--
-      this.$emit('decrement', {
-        nom: this.nom,
-        valeur: this.compteur
-      })
+      this.$emit('update', this.compteur)
     },
     reinitialiser() {
       this.compteur = this.valeurInitiale
-      this.$emit('reset', {
-        nom: this.nom,
-        valeur: this.compteur
-      })
+      this.$emit('update', this.compteur)
     }
   }
 }
@@ -61,62 +52,44 @@ export default {
 
 <style scoped>
 .compteur {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
-  padding: 30px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 16px;
   text-align: center;
-  color: white;
-  min-width: 200px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: #f9f9f9;
+  color: #333333;
+  max-width: 220px;
 }
 
 .compteur-nom {
-  font-size: 18px;
-  margin-bottom: 15px;
-  opacity: 0.9;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
 .compteur-valeur {
-  font-size: 42px;
+  font-size: 28px;
   font-weight: bold;
-  margin: 20px 0;
+  margin: 12px 0;
 }
 
 .compteur-boutons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
+  margin-bottom: 8px;
 }
 
 button {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  border: 1px solid #cccccc;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s;
-  font-weight: bold;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-increment {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.btn-decrement {
-  background-color: #e74c3c;
-  color: white;
+  background-color: #ffffff;
 }
 
 .btn-reset {
-  background-color: #95a5a6;
-  color: white;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 </style>
