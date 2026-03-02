@@ -59,8 +59,6 @@ export default {
         complete: false
       })
     },
-
-    // Utilisées par TodoList / TodoItem via un index
     toggleTodoParIndex(index) {
       const todo = this.todos[index]
       if (todo) {

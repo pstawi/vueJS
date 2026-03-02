@@ -476,7 +476,7 @@ export default {
       @input="texte = $event.target.value"
     >
     
-    <!-- Avec v-model (sucre syntaxique) -->
+    <!-- Avec v-model -->
     <input v-model="texte">
     
     <p>Texte : {{ texte }}</p>

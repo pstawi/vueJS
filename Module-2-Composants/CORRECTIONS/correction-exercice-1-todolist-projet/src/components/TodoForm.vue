@@ -3,7 +3,7 @@
     <input
       v-model="nouveauTodo"
       type="text"
-      placeholder="Ajouter une tâche..."
+      placeholder="Ajouter une tâche"
     >
     <button type="submit">Ajouter</button>
   </form>
@@ -32,7 +32,6 @@ export default {
       if (texte === '') {
         return
       }
-      // On appelle directement la fonction passée par le parent
       this.onAdd(texte)
       this.nouveauTodo = ''
     }
